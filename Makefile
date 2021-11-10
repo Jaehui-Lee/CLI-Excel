@@ -1,8 +1,11 @@
-main: main.o cell.o table.o txttable.o excel.o
-	g++ -o main main.o cell.o table.o txttable.o excel.o -lncurses
+main: main.o initialpage.o cell.o table.o txttable.o excel.o
+	g++ -o main main.o initialpage.o cell.o table.o txttable.o excel.o -lncurses
 
 main.o: main.cpp
 	g++ -c -o main.o main.cpp
+
+initialpage.o: initialpage.h initialpage.cpp
+	g++ -c -o initialpage.o initialpage.cpp
 
 cell.o: cell.h cell.cpp
 	g++ -c -o cell.o cell.cpp

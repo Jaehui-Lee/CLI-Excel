@@ -101,28 +101,28 @@ int Excel::parse_user_input(string s)
     return 1;
 }
 
+void Excel::print_table()
+{
+    int row, col;
+    getmaxyx(win, row, col);
+    wclear(win);
+    wprintw(win, current_table->print_table().c_str());
+    mvwprintw(win, row - 1, 0, ">> ");
+    wrefresh(win);
+}
+
 void Excel::command_line()
 {
     char cstr[80];
+    
+    print_table();
     getstr(cstr);
     string s(cstr);
 
     while (parse_user_input(s))
     {
-        wclear(win);
-        wprintw(win, current_table->print_table().c_str());
-        wprintw(win, "\n");
-        wprintw(win, ">> ");
-        wrefresh(win);
+        print_table();
         getstr(cstr);
         s = cstr;
     }
-}
-
-void Excel::print_table()
-{
-    wclear(win);
-    wprintw(win, current_table->print_table().c_str());
-    wprintw(win, "\n");
-    wprintw(win, ">> ");
 }

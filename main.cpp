@@ -1,5 +1,3 @@
-#pragma once
-
 #include <ncurses.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -11,6 +9,7 @@
 #include <string>
 #include <list>
 
+#include "initialpage.h"
 #include "excel.h"
 
 #define MAX_ROW_SIZE 18
@@ -74,8 +73,27 @@ int main()
 
         initscr();
 
-        Excel m(stdscr, MAX_ROW_SIZE, MAX_COL_SIZE, 0);
-        m.command_line();
+        InitialPage ip;
+        int choice = 0;
+
+        while ((choice = ip.init_screen()) != -1)
+        {
+            if (choice == 1)
+            {
+                Excel m(stdscr, MAX_ROW_SIZE, MAX_COL_SIZE, 0);
+                m.command_line();
+            }
+            else if (choice == 2)
+            {
+            }
+            else if (choice == 3)
+            {
+            }
+            else
+            {
+                break;
+            }
+        }
 
         endwin();
 
