@@ -1,16 +1,12 @@
 # CLI-Excel
 
-<<<<<<< HEAD
 * How to use
 
-=======
->>>>>>> bb01cdd244ddd4298de1765471345d885070f03c
 ```bash
 $ sudo apt-get install libncurses5-dev libncursesw5-dev
 $ make main
 $ ./main
 ```
-<<<<<<< HEAD
 
 * In excution, you can use following command
 
@@ -39,5 +35,3 @@ $ ./main
  - exit (return to initial page)
 >> exit
 ```
-=======
->>>>>>> bb01cdd244ddd4298de1765471345d885070f03c
