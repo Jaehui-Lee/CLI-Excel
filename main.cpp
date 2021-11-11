@@ -10,48 +10,15 @@
 #include <list>
 
 #include "initialpage.h"
-#include "excel.h"
+#include "excellist.h"
 
 #define MAX_ROW_SIZE 18
 #define MAX_COL_SIZE 18
 
+#define WIN_ROW_SIZE 40
+#define WIN_COL_SIZE 120
+
 using namespace std;
-
-// class WinList
-// {
-// private:
-//     list<WINDOW*> winList;
-//     int wCount;
-//     int currentWin;
-
-// public:
-//     WinList() : wCount(1), currentWin(0)
-//     {
-//         winList.push_back(new WINDOW);
-//     }
-
-//     WINDOW* getCurrentWindow() const
-//     {
-//         list<WINDOW*>::iterator iter = winList.begin()+currentWin;
-//         return *iter;
-//     }
-
-//     WINDOW* insertWindow()
-//     {
-//         winList.push_back(new WINDOW);
-//         wCount++;
-//         currentWin++;
-//         return winList.back();
-//     }
-
-//     WINDOW* deleteWindow()
-//     {
-//         list<WINDOW*>::iterator iter = winList.begin()+currentWin;
-//         list<WINDOW*>::iterator next;
-//         next = winList.erase(iter);
-//         return *next;
-//     }
-// };
 
 int main()
 {
@@ -69,27 +36,48 @@ int main()
     default:
         wait(&rt);
         // winsize 변경 후 아래 코드 적용
-        usleep(1000);
+        usleep(100000);
 
         initscr();
 
         InitialPage ip;
         int choice = 0;
 
+        ExcelList excelList;
+
         while ((choice = ip.init_screen()) != -1)
         {
-            if (choice == 1)
+            if (choice == 1) // Create New Excel
             {
-                Excel m(stdscr, MAX_ROW_SIZE, MAX_COL_SIZE, 0);
-                m.command_line();
+                while (true)
+                {
+                    Excel *m = excelList.get_current_excel();
+                    int ret = m->command_line();
+                    if (ret == 2) // next
+                    {
+                        excelList.move_next_window();
+                    }
+                    else if (ret == 3) // prev
+                    {
+                        excelList.move_prev_window();
+                    }
+                    else if (ret == 4) // delete
+                    {
+                        excelList.delete_window();
+                    }
+                    else // other
+                    {
+                        break;
+                    }
+                }
             }
-            else if (choice == 2)
+            else if (choice == 2) // Open Excel
             {
             }
-            else if (choice == 3)
+            else if (choice == 3) // Manual
             {
             }
-            else
+            else // Exit
             {
                 break;
             }

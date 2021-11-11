@@ -1,5 +1,5 @@
-main: main.o initialpage.o cell.o table.o txttable.o excel.o
-	g++ -o main main.o initialpage.o cell.o table.o txttable.o excel.o -lncurses
+main: main.o initialpage.o cell.o table.o txttable.o excel.o excellist.o
+	g++ -o main main.o initialpage.o cell.o table.o txttable.o excel.o excellist.o -lncurses
 
 main.o: main.cpp
 	g++ -c -o main.o main.cpp
@@ -18,6 +18,9 @@ txttable.o: table.h txttable.h txttable.cpp
 
 excel.o: excel.h excel.cpp
 	g++ -c -o excel.o excel.cpp
+
+excellist.o: excellist.h excellist.cpp
+	g++ -c -o excellist.o excellist.cpp
 
 clean:
 	rm *.o

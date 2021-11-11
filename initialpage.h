@@ -1,5 +1,9 @@
 #include "ncurses.h"
 
+/*------------------
+    InitialPage
+-------------------*/
+
 class InitialPage
 {
     enum

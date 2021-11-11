@@ -44,6 +44,15 @@ int Excel::parse_user_input(string s)
         }
     }
 
+    if ( command == "next" )
+        return 2;
+
+    if ( command == "prev" )
+        return 3;
+    
+    if ( command == "delete" )
+        return 4;
+
     string to = "";
     for (int i = next; i < s.length(); i++)
     {
@@ -111,18 +120,22 @@ void Excel::print_table()
     wrefresh(win);
 }
 
-void Excel::command_line()
+int Excel::command_line()
 {
     char cstr[80];
     
     print_table();
-    getstr(cstr);
+    wgetstr(win, cstr);
     string s(cstr);
 
-    while (parse_user_input(s))
+    int ret;
+    while ((ret = parse_user_input(s)))
     {
+        if ( ret == 2 || ret == 3 || ret == 4 )
+            return ret;
         print_table();
-        getstr(cstr);
+        wgetstr(win, cstr);
         s = cstr;
     }
+    return ret;
 }
