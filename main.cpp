@@ -12,9 +12,6 @@
 #include "initialpage.h"
 #include "excellist.h"
 
-#define MAX_ROW_SIZE 18
-#define MAX_COL_SIZE 18
-
 #define WIN_ROW_SIZE 40
 #define WIN_COL_SIZE 120
 
@@ -30,28 +27,31 @@ int main()
         perror("fork failed");
         break;
     case 0:
-        execlp("printf", "printf", "\"\033[8;40;120t\"", NULL);
+        execlp("printf", "printf", "\"\033[8;40;120t\"", NULL); // change winsize -> row:col = 40:120
         exit(1);
         break;
     default:
         wait(&rt);
-        // winsize 변경 후 아래 코드 적용
+
         usleep(100000);
 
         initscr();
 
-        InitialPage ip;
-        int choice = 0;
+        InitialPage ip(stdscr); // when program starts, show initial page
+        int choice = 0; // user's choice on initial page
 
-        ExcelList excelList;
+        ExcelList excelList; // n excel sheet
 
-        while ((choice = ip.init_screen()) != -1)
+        while ((choice = ip.init_screen()) != -1) // if user's choice is 'Exit', go out
         {
             if (choice == 1) // Create New Excel
             {
                 while (true)
                 {
                     Excel *m = excelList.get_current_excel();
+                    /*
+                        if user enter command 'next' or 'prev' or 'delete' or 'exit', m->command_line() return
+                    */
                     int ret = m->command_line();
                     if (ret == 2) // next
                     {
@@ -65,7 +65,7 @@ int main()
                     {
                         excelList.delete_window();
                     }
-                    else // other
+                    else // exit
                     {
                         break;
                     }

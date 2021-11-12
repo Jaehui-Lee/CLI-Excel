@@ -3,7 +3,7 @@
 ExcelList::ExcelList() : excel_count(1), current_excel(0)
 {
     WINDOW *win = newwin(WIN_ROW_SIZE, WIN_COL_SIZE, 0, 0);
-    excelList.push_back(new Excel(win, MAX_ROW_SIZE, MAX_COL_SIZE, 0));
+    excelList.push_back(new Excel(win, MAX_ROW_SIZE, MAX_COL_SIZE));
 }
 
 Excel *ExcelList::get_current_excel()
@@ -30,7 +30,7 @@ void ExcelList::move_prev_window()
 void ExcelList::insert_window()
 {
     WINDOW *win = newwin(WIN_ROW_SIZE, WIN_COL_SIZE, 0, 0);
-    excelList.push_back(new Excel(win, MAX_ROW_SIZE, MAX_COL_SIZE, 0));
+    excelList.push_back(new Excel(win, MAX_ROW_SIZE, MAX_COL_SIZE));
     excel_count++;
 }
 

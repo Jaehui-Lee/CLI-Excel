@@ -14,18 +14,27 @@ class Table;
 /*------------------
         Cell
 -------------------*/
+enum Type
+{
+    NONE = -1,
+    STRING = 0,
+    NUMBER = 1,
+    DATE = 2,
+    EXPR = 3
+};
 
 class Cell
 {
 protected:
     int x, y;
     Table *table;
+    Type type;
 
 public:
     virtual string stringify() = 0;
     virtual int to_numeric() = 0;
 
-    Cell(int x, int y, Table *table);
+    Cell(int x, int y, Table *table, Type type);
 };
 
 /*------------------
@@ -40,7 +49,7 @@ public:
     string stringify();
     int to_numeric();
 
-    StringCell(string data, int x, int y, Table *t);
+    StringCell(string data, int x, int y, Table *t, Type type);
 };
 
 /*------------------
@@ -55,7 +64,7 @@ public:
     string stringify();
     int to_numeric();
 
-    NumberCell(int data, int x, int y, Table *t);
+    NumberCell(int data, int x, int y, Table *t, Type type);
 };
 
 /*------------------
@@ -70,7 +79,7 @@ public:
     string stringify();
     int to_numeric();
 
-    DateCell(string s, int x, int y, Table *t);
+    DateCell(string s, int x, int y, Table *t, Type type);
 };
 
 /*------------------
@@ -84,14 +93,14 @@ class ExprCell : public Cell
 
     vector<string> exp_vec;
 
-    // 연산자 우선 순위를 반환
+    // return operator precedence
     int precedence(char c);
 
-    // 수식을 분석
+    // Analyze the expression
     void parse_expression();
 
 public:
-    ExprCell(string data, int x, int y, Table *t);
+    ExprCell(string data, int x, int y, Table *t, Type type);
 
     string stringify();
     int to_numeric();

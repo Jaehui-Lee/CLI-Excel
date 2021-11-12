@@ -4,7 +4,7 @@
     InitialPage
 -------------------*/
 
-InitialPage::InitialPage() {}
+InitialPage::InitialPage(WINDOW* _win) : win(_win) {}
 
 InitialPage::~InitialPage() {}
 
@@ -19,20 +19,20 @@ int InitialPage::init_screen()
     int c;
     int row, col;
 
-    initscr();
+    //initscr();
     clear();
     noecho();
-    cbreak(); /* Line buffering disabled. pass on everything */
+    cbreak(); // Line buffering disabled. pass on everything
     curs_set(0);
 
-    getmaxyx(stdscr, row, col);
+    getmaxyx(win, row, col);
     startx = (col - WIDTH) / 2;
     starty = (row - HEIGHT) / 2;
 
     menu_win = newwin(HEIGHT, WIDTH, starty, startx);
     keypad(menu_win, TRUE);
-    mvprintw(0, 0, "Use arrow keys to go up and down, Press enter to select a choice");
-    refresh();
+    mvwprintw(win, 0, 0, "Use arrow keys to go up and down, Press enter to select a choice");
+    wrefresh(win);
     print_menu(menu_win, highlight);
     while (1)
     {
@@ -66,7 +66,7 @@ int InitialPage::init_screen()
             break;
     }
     clrtoeol();
-    endwin();
+    //endwin();
     echo();
     raw();
     curs_set(1);

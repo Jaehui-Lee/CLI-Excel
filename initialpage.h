@@ -6,6 +6,7 @@
 
 class InitialPage
 {
+    // choice box size of initial page
     enum
     {
         WIDTH = 60,
@@ -21,8 +22,10 @@ class InitialPage
     
     int n_choices = sizeof(choices) / sizeof(char *);
 
+    WINDOW* win;
+
 public:
-    InitialPage();
+    InitialPage(WINDOW* _win);
 
     ~InitialPage();
 

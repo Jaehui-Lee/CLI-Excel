@@ -4,14 +4,14 @@
         Cell
 -------------------*/
 
-Cell::Cell(int x, int y, Table *table) : x(x), y(y), table(table) {}
+Cell::Cell(int x, int y, Table *table, Type type) : x(x), y(y), type(NONE), table(table) {}
 
 /*------------------
      StringCell
 -------------------*/
 
-StringCell::StringCell(string data, int x, int y, Table *t)
-    : data(data), Cell(x, y, t) {}
+StringCell::StringCell(string data, int x, int y, Table *t, Type type)
+    : data(data), Cell(x, y, t, type) {}
 string StringCell::stringify() { return data; }
 int StringCell::to_numeric() { return 0; }
 
@@ -19,8 +19,8 @@ int StringCell::to_numeric() { return 0; }
      NumberCell
 -------------------*/
 
-NumberCell::NumberCell(int data, int x, int y, Table *t)
-    : data(data), Cell(x, y, t) {}
+NumberCell::NumberCell(int data, int x, int y, Table *t, Type type)
+    : data(data), Cell(x, y, t, type) {}
 
 string NumberCell::stringify() { return to_string(data); }
 int NumberCell::to_numeric() { return data; }
@@ -46,9 +46,9 @@ int DateCell::to_numeric()
     return static_cast<int>(data);
 }
 
-DateCell::DateCell(string s, int x, int y, Table *t) : Cell(x, y, t)
+DateCell::DateCell(string s, int x, int y, Table *t, Type type) : Cell(x, y, t, type)
 {
-    // 입력받는 Date 형식은 항상 yyyy-mm-dd 꼴이라 가정
+    // Date format : yyyy-mm-dd (Ex. 2021-01-01)
     int year = atoi(s.c_str());
     int month = atoi(s.c_str() + 5);
     int day = atoi(s.c_str() + 8);
@@ -69,8 +69,8 @@ DateCell::DateCell(string s, int x, int y, Table *t) : Cell(x, y, t)
       ExprCell
 -------------------*/
 
-ExprCell::ExprCell(string data, int x, int y, Table *t)
-    : data(data), Cell(x, y, t) {}
+ExprCell::ExprCell(string data, int x, int y, Table *t, Type type)
+    : data(data), Cell(x, y, t, type) {}
 
 string ExprCell::stringify()
 { 
@@ -87,12 +87,12 @@ int ExprCell::to_numeric()
     {
         string s = exp_vec[i];
 
-        // 셀 일 경우
+        // if Cell
         if (isalpha(s[0]))
         {
             st.push(table->to_numeric(s));
         }
-        // 숫자 일 경우 (한 자리라 가정)
+        // if Number ( 0 ~ 9 )
         else if (isdigit(s[0]))
         {
             st.push(atoi(s.c_str()));
@@ -145,8 +145,8 @@ void ExprCell::parse_expression()
 {
     stack<string> st;
 
-    // 수식 전체를 () 로 둘러 사서 exp_vec 에 남아있는 연산자들이 push 되게
-    // 해줍니다.
+    // expression is surrounded by Parenthesis
+    // Ex. A1+A2+A3 -> (A1+A2+A3)
     data.insert(0, "(");
     data.push_back(')');
 

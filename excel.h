@@ -1,4 +1,4 @@
-#include "txttable.h"
+#include "table.h"
 #include "ncurses.h"
 
 using namespace std;
@@ -13,7 +13,7 @@ class Excel
     WINDOW *win;
 
 public:
-    Excel(WINDOW* _win, int max_row, int max_col, int choice);
+    Excel(WINDOW* _win, int max_row, int max_col);
 
     ~Excel();
 
