@@ -8,7 +8,7 @@
 
 Excel::Excel(WINDOW *_win, int max_row, int max_col) : win(_win)
 {
-    current_table = new Table(max_row, max_col);
+    current_table = new Table(win, max_row, max_col);
 }
 
 Excel::~Excel()
@@ -105,47 +105,8 @@ void Excel::print_table()
     int row, col;
     getmaxyx(win, row, col);
     wclear(win);
-    mvwprintw(win, 0, 0, current_table->print_table().c_str()); // print table
-
-    for(int i = 1; i <= 2 * current_table->max_row_indicator(); i += 2)
-    {
-        mvwhline(win, i, 0, ACS_HLINE, current_table->line_num());
-    } // 가로줄
-
-    for(int i = 1; i <= 2 * current_table->max_row_indicator(); i += 2)
-    {
-        int *num = current_table->col_num();
-        for(int j = 0; j < current_table->max_col_indicator(); j++)
-        {
-            if(j == 0) 
-            {
-                mvwhline(win, i , num[j], ACS_PLUS, 1);
-            }
-            else
-            {
-                num[j] += num[j-1];
-                mvwhline(win, i, num[j], ACS_PLUS, 1);
-            }
-        }
-    } // 격자 지점에 십자가
-
-    for(int i = 0; i <= 2 * current_table->max_row_indicator(); i += 2)
-    {
-        int* num = current_table->col_num();
-        for(int j = 0; j < current_table->max_col_indicator(); j++)
-        {
-            if(j == 0) 
-            {
-                mvwvline(win, i , num[j], ACS_VLINE, 1);
-            }
-            else
-            {
-                num[j] += num[j-1];
-                mvwvline(win, i, num[j], ACS_VLINE, 1);
-            }
-        }
-    } // 세로줄
-    
+    /* mvwprintw(win, 0, 0, current_table->print_table().c_str()); // print table */
+    current_table->print_table();
     mvwprintw(win, row - 1, 0, ">> ");
     wrefresh(win);
 }

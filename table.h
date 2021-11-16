@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cell.h"
-
+#include "ncurses.h"
 #include <iostream>
 #include <string>
 
@@ -18,12 +18,12 @@ class Table
 protected:
     
     int max_row_size, max_col_size;
-
+    WINDOW* win;
     // A two-dimensional array that stores Cell*
     Cell ***data_table;
 
 public:
-    Table(int max_row_size, int max_col_size);
+    Table(WINDOW* win, int max_row_size, int max_col_size);
 
     virtual ~Table();
 
@@ -46,11 +46,5 @@ public:
     // change number to column name ( 0->A, 1->B, 2->C, ... , 25->Z )
     string col_num_to_str(int n);
 
-    string print_table();
-
-    int *num = new int[max_col_size];
-    int max_row_indicator();
-    int max_col_indicator();
-    int* col_num();
-    int line_num();
+    void print_table();
 };

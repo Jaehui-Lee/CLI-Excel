@@ -4,8 +4,8 @@
         Table
 -------------------*/
 
-Table::Table(int max_row_size, int max_col_size)
-    : max_row_size(max_row_size), max_col_size(max_col_size)
+Table::Table(WINDOW* win, int max_row_size, int max_col_size)
+    : win(win), max_row_size(max_row_size), max_col_size(max_col_size)
 {
     data_table = new Cell **[max_row_size];
     for (int i = 0; i < max_row_size; i++)
@@ -94,10 +94,8 @@ string Table::stringify(int row, int col)
     return "";
 }
 
-string Table::print_table()
+void Table::print_table()
 {
-    string total_table;
-
     int *col_max_wide = new int[max_col_size];
     for (int i = 0; i < max_col_size; i++)
     {
@@ -113,47 +111,83 @@ string Table::print_table()
         col_max_wide[i] = max_wide;
     }
 
-    total_table += "    ";
+    wprintw(win, "    ");
+
     int total_wide = 4;
     for (int i = 0; i < max_col_size; i++)
     {
         if (col_max_wide[i])
         {
+            int x, y;
             int max_len = max(2, col_max_wide[i]);
-            total_table += " | " + col_num_to_str(i);
-            total_table += repeat_char(max_len - col_num_to_str(i).length(), ' ');
+            wprintw(win, " ");
+            wvline(win, ACS_VLINE, 1);
+            getyx(win, y, x);
+            wmove(win, y, x + 1);
+            wprintw(win, " ");
+            wprintw(win , col_num_to_str(i).c_str());
+            for(int j = 0; j < max_len - col_num_to_str(i).length(); j++)
+            {
+                wprintw(win, " ");
+            }
 
             total_wide += (max_len + 3);
         }
     }
 
-    total_table += "\n";
+    wprintw(win, "\n");
+
+    int num[max_col_size];
+    num[0] = 5;
+
+    for (int i = 0; i <= max_col_size; i++)
+    {
+        int max_len = max(2, col_max_wide[i]);
+        num[i + 1] = max_len + 3 + num[i];
+    }
 
     for (int i = 0; i < max_row_size; i++)
     {
-        total_table += repeat_char(total_wide, '-');
-        total_table += "\n" + to_string(i + 1);
-        total_table += repeat_char(4 - to_string(i + 1).length(), ' ');
+        int x, y;
+        whline(win, ACS_HLINE, total_wide);
+        getyx(win, y, x);
+        for(int i = 0; i <= max_col_size; i++)
+        {
+            wmove(win, y, num[i]);
+            whline(win, ACS_PLUS, 1);
+        }
+        wprintw(win, "\n");
+        wprintw(win, to_string(i +1).c_str());
+        for(int j = 0; j < 4 - to_string(i + 1).length(); j++)
+        {
+            wprintw(win, " ");
+        }
 
         for (int j = 0; j < max_col_size; j++)
         {
             if (col_max_wide[j])
             {
                 int max_len = max(2, col_max_wide[j]);
-
+                int x , y;
                 string s = "";
                 if (data_table[i][j])
                 {
                     s = data_table[i][j]->stringify();
                 }
-                total_table += " | " + s;
-                total_table += repeat_char(max_len - s.length(), ' ');
+                wprintw(win, " ");
+                wvline(win, ACS_VLINE, 1);
+                getyx(win, y, x);
+                wmove(win, y, x + 1);
+                wprintw(win, " ");
+                wprintw(win, s.c_str());
+                for(int j = 0; j < max_len - s.length(); j++)
+                {
+                wprintw(win, " ");
+                }
             }
         }
-        total_table += "\n";
+        wprintw(win, "\n");
     }
-
-    return total_table;
 }
 
 string Table::repeat_char(int n, char c)
@@ -183,73 +217,4 @@ string Table::col_num_to_str(int n)
     }
 
     return s;
-}
-
-int Table::max_row_indicator()
-{
-    return max_row_size;
-}
-
-int Table::max_col_indicator()
-{
-    return max_col_size;
-}
-
-int* Table::col_num()
-{
-    int *col_max_wide = new int[max_col_size];
-
-    for (int i = 0; i < max_col_size; i++)
-    {
-        unsigned int max_wide = 2;
-        for (int j = 0; j < max_row_size; j++)
-        {
-            if (data_table[j][i] &&
-                data_table[j][i]->stringify().length() > max_wide)
-            {
-                max_wide = data_table[j][i]->stringify().length();
-            }
-        }
-        col_max_wide[i] = max_wide;
-    }
-
-    num[0] = 5;
-
-    for (int j = 0; j < max_col_size; j++)
-    {
-        int max_len = max(2, col_max_wide[j]);
-        num[j + 1] = max_len + 3;
-    }
-
-    return num;
-}
-
-int Table::line_num()
-{
-    int *col_max_wide = new int[max_col_size];
-    for (int i = 0; i < max_col_size; i++)
-    {
-        unsigned int max_wide = 2;
-        for (int j = 0; j < max_row_size; j++)
-        {
-            if (data_table[j][i] &&
-                data_table[j][i]->stringify().length() > max_wide)
-            {
-                max_wide = data_table[j][i]->stringify().length();
-            }
-        }
-        col_max_wide[i] = max_wide;
-    }
-
-    int total_wide = 4;
-    
-    for (int i = 0; i < max_col_size; i++)
-    {
-        if (col_max_wide[i])
-        {
-            int max_len = max(2, col_max_wide[i]);
-            total_wide += (max_len + 3);
-        }
-    }
-    return total_wide;
 }
