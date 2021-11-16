@@ -47,4 +47,10 @@ public:
     string col_num_to_str(int n);
 
     string print_table();
+
+    int *num = new int[max_col_size];
+    int max_row_indicator();
+    int max_col_indicator();
+    int* col_num();
+    int line_num();
 };

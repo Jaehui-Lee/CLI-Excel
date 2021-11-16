@@ -184,3 +184,72 @@ string Table::col_num_to_str(int n)
 
     return s;
 }
+
+int Table::max_row_indicator()
+{
+    return max_row_size;
+}
+
+int Table::max_col_indicator()
+{
+    return max_col_size;
+}
+
+int* Table::col_num()
+{
+    int *col_max_wide = new int[max_col_size];
+
+    for (int i = 0; i < max_col_size; i++)
+    {
+        unsigned int max_wide = 2;
+        for (int j = 0; j < max_row_size; j++)
+        {
+            if (data_table[j][i] &&
+                data_table[j][i]->stringify().length() > max_wide)
+            {
+                max_wide = data_table[j][i]->stringify().length();
+            }
+        }
+        col_max_wide[i] = max_wide;
+    }
+
+    num[0] = 5;
+
+    for (int j = 0; j < max_col_size; j++)
+    {
+        int max_len = max(2, col_max_wide[j]);
+        num[j + 1] = max_len + 3;
+    }
+
+    return num;
+}
+
+int Table::line_num()
+{
+    int *col_max_wide = new int[max_col_size];
+    for (int i = 0; i < max_col_size; i++)
+    {
+        unsigned int max_wide = 2;
+        for (int j = 0; j < max_row_size; j++)
+        {
+            if (data_table[j][i] &&
+                data_table[j][i]->stringify().length() > max_wide)
+            {
+                max_wide = data_table[j][i]->stringify().length();
+            }
+        }
+        col_max_wide[i] = max_wide;
+    }
+
+    int total_wide = 4;
+    
+    for (int i = 0; i < max_col_size; i++)
+    {
+        if (col_max_wide[i])
+        {
+            int max_len = max(2, col_max_wide[i]);
+            total_wide += (max_len + 3);
+        }
+    }
+    return total_wide;
+}
