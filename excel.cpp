@@ -8,7 +8,7 @@
 
 Excel::Excel(WINDOW *_win, int max_row, int max_col) : win(_win)
 {
-    current_table = new Table(max_row, max_col);
+    current_table = new Table(win, max_row, max_col);
 }
 
 Excel::~Excel()
@@ -40,13 +40,13 @@ int Excel::parse_user_input(string s)
     // transform command to lowercase
     transform(command.begin(), command.end(), command.begin(), ::tolower);
 
-    if ( command == "next" )
+    if (command == "next")
         return 2;
 
-    if ( command == "prev" )
+    if (command == "prev")
         return 3;
-    
-    if ( command == "delete" )
+
+    if (command == "delete")
         return 4;
 
     string to = "";
@@ -88,6 +88,10 @@ int Excel::parse_user_input(string s)
     {
         current_table->reg_cell(new ExprCell(rest, row, col, current_table, EXPR), row, col);
     }
+    else if (command == "setf")
+    {
+        current_table->reg_cell(new FuncCell(rest, row, col, current_table, FUNC), row, col);
+    }
     // else if (command == "save")
     // {
 
@@ -100,30 +104,32 @@ int Excel::parse_user_input(string s)
     return 1;
 }
 
-void Excel::print_table()
+void Excel::print_table(int current_page, int excel_count)
 {
     int row, col;
+    string str = to_string(current_page + 1) + "/" + to_string(excel_count);
     getmaxyx(win, row, col);
     wclear(win);
-    mvwprintw(win, 0, 0, current_table->print_table().c_str()); // print table
+    current_table->print_table();
+    mvwprintw(win, row - 1, col - 10, str.c_str());
     mvwprintw(win, row - 1, 0, ">> ");
     wrefresh(win);
 }
 
-int Excel::command_line()
+int Excel::command_line(int current_page, int excel_count)
 {
     char cstr[80]; // user's command
-    int ret; // return value(attribute) of user's command
-    
-    print_table(); // print table
+    int ret;       // return value(attribute) of user's command
+
+    print_table(current_page, excel_count); // print table
     wgetstr(win, cstr);
     string s(cstr);
 
     while ((ret = parse_user_input(s))) // analysis of user input
     {
-        if ( ret == 2 || ret == 3 || ret == 4 ) // if user's command is "next" or "prev" or "delete" (about sheet)
+        if (ret == 2 || ret == 3 || ret == 4) // if user's command is "next" or "prev" or "delete" (about sheet)
             return ret;
-        print_table(); // if not, keep going
+        print_table(current_page, excel_count); // if not, keep going
         wgetstr(win, cstr);
         s = cstr;
     }

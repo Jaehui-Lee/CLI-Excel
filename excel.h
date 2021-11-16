@@ -18,6 +18,6 @@ public:
     ~Excel();
 
     int parse_user_input(string s);
-    int command_line();
-    void print_table();
+    int command_line(int current_page, int excel_count);
+    void print_table(int current_page, int excel_count);
 };

@@ -4,8 +4,8 @@
         Table
 -------------------*/
 
-Table::Table(int max_row_size, int max_col_size)
-    : max_row_size(max_row_size), max_col_size(max_col_size)
+Table::Table(WINDOW *win, int max_row_size, int max_col_size)
+    : win(win), max_row_size(max_row_size), max_col_size(max_col_size)
 {
     data_table = new Cell **[max_row_size];
     for (int i = 0; i < max_row_size; i++)
@@ -94,10 +94,8 @@ string Table::stringify(int row, int col)
     return "";
 }
 
-string Table::print_table()
+void Table::print_table()
 {
-    string total_table;
-
     int *col_max_wide = new int[max_col_size];
     for (int i = 0; i < max_col_size; i++)
     {
@@ -113,56 +111,83 @@ string Table::print_table()
         col_max_wide[i] = max_wide;
     }
 
-    total_table += "    ";
+    wprintw(win, "    ");
     int total_wide = 4;
     for (int i = 0; i < max_col_size; i++)
     {
         if (col_max_wide[i])
         {
+            int x, y;
             int max_len = max(2, col_max_wide[i]);
-            total_table += " | " + col_num_to_str(i);
-            total_table += repeat_char(max_len - col_num_to_str(i).length(), ' ');
+            wprintw(win, " ");
+            wvline(win, ACS_VLINE, 1);
+            getyx(win, y, x);
+            wmove(win, y, x + 1);
+            wprintw(win, " ");
+            wprintw(win, col_num_to_str(i).c_str());
+            repeat_char(max_len-col_num_to_str(i).length(), " ");
 
             total_wide += (max_len + 3);
         }
     }
 
-    total_table += "\n";
+    wprintw(win, "\n");
+
+    int cross_pos[max_col_size];
+    cross_pos[0] = 5;
+
+    for (int i = 0; i <= max_col_size; i++)
+    {
+        int max_len = max(2, col_max_wide[i]);
+        cross_pos[i + 1] = max_len + 3 + cross_pos[i];
+    }
 
     for (int i = 0; i < max_row_size; i++)
     {
-        total_table += repeat_char(total_wide, '-');
-        total_table += "\n" + to_string(i + 1);
-        total_table += repeat_char(4 - to_string(i + 1).length(), ' ');
+        // horizontal line
+        int x, y;
+        whline(win, ACS_HLINE, total_wide);
+        getyx(win, y, x);
+        for (int i = 0; i <= max_col_size; i++)
+        {
+            wmove(win, y, cross_pos[i]);
+            whline(win, ACS_PLUS, 1);
+        }
+        wprintw(win, "\n");
+
+        // data line
+        wprintw(win, to_string(i + 1).c_str());
+        repeat_char(4-to_string(i+1).length(), " ");
 
         for (int j = 0; j < max_col_size; j++)
         {
             if (col_max_wide[j])
             {
                 int max_len = max(2, col_max_wide[j]);
+                int x, y;
 
                 string s = "";
                 if (data_table[i][j])
                 {
                     s = data_table[i][j]->stringify();
                 }
-                total_table += " | " + s;
-                total_table += repeat_char(max_len - s.length(), ' ');
+                wprintw(win, " ");
+                wvline(win, ACS_VLINE, 1);
+                getyx(win, y, x);
+                wmove(win, y, x + 1);
+                wprintw(win, " ");
+                wprintw(win, s.c_str());
+                repeat_char(max_len-s.length(), " ");
             }
         }
-        total_table += "\n";
+        wprintw(win, "\n");
     }
-
-    return total_table;
 }
 
-string Table::repeat_char(int n, char c)
+void Table::repeat_char(int n, const char* c)
 {
-    string s = "";
     for (int i = 0; i < n; i++)
-        s.push_back(c);
-
-    return s;
+        wprintw(win, c);
 }
 
 // change number to column name ( 0->A, 1->B, 2->C, ... , 25->Z )

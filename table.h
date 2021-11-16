@@ -2,6 +2,7 @@
 
 #include "cell.h"
 
+#include "ncurses.h"
 #include <iostream>
 #include <string>
 
@@ -17,13 +18,14 @@ class Table
 {
 protected:
     
+    WINDOW* win;
     int max_row_size, max_col_size;
 
     // A two-dimensional array that stores Cell*
     Cell ***data_table;
 
 public:
-    Table(int max_row_size, int max_col_size);
+    Table(WINDOW* win, int max_row_size, int max_col_size);
 
     virtual ~Table();
 
@@ -41,10 +43,10 @@ public:
     string stringify(const string &s);
     string stringify(int row, int col);
 
-    string repeat_char(int n, char c);
+    void repeat_char(int n, const char* c);
 
     // change number to column name ( 0->A, 1->B, 2->C, ... , 25->Z )
     string col_num_to_str(int n);
 
-    string print_table();
+    void print_table();
 };

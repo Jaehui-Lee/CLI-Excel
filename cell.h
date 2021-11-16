@@ -2,7 +2,7 @@
 
 #include "table.h"
 
-#include "time.h"
+#include "ctime"
 #include <vector>
 #include <stack>
 #include <string>
@@ -20,7 +20,8 @@ enum Type
     STRING = 0,
     NUMBER = 1,
     DATE = 2,
-    EXPR = 3
+    EXPR = 3,
+    FUNC = 4
 };
 
 class Cell
@@ -89,7 +90,6 @@ public:
 class ExprCell : public Cell
 {
     string data;
-    string *parsed_expr;
 
     vector<string> exp_vec;
 
@@ -101,6 +101,27 @@ class ExprCell : public Cell
 
 public:
     ExprCell(string data, int x, int y, Table *t, Type type);
+
+    string stringify();
+    int to_numeric();
+};
+
+
+/*------------------
+      ExprCell
+-------------------*/
+
+class FuncCell : public Cell
+{
+    string data;
+
+    vector<string> func_vec;
+    
+        // Analyze the function
+    void parse_function();
+
+public:
+    FuncCell(string data, int x, int y, Table *t, Type type);
 
     string stringify();
     int to_numeric();

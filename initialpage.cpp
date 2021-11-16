@@ -79,7 +79,7 @@ void InitialPage::print_menu(WINDOW *menu_win, int highlight)
 
     x = 20;
     y = 5;
-    box(menu_win, 0, '*');
+    box(menu_win, 0, 0);
     for (i = 0; i < n_choices; ++i)
     {
         if (highlight == i + 1) /* High light the present choice */

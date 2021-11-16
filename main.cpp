@@ -52,7 +52,7 @@ int main()
                     /*
                         if user enter command 'next' or 'prev' or 'delete' or 'exit', m->command_line() return
                     */
-                    int ret = m->command_line();
+                    int ret = m->command_line(excelList.get_current_page(), excelList.get_excel_count());
                     if (ret == 2) // next
                     {
                         excelList.move_next_window();

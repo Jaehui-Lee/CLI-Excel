@@ -3,7 +3,7 @@
 #include <list>
 
 #define MAX_ROW_SIZE 18
-#define MAX_COL_SIZE 18
+#define MAX_COL_SIZE 20
 
 #define WIN_ROW_SIZE 40
 #define WIN_COL_SIZE 120
@@ -21,6 +21,8 @@ public:
     ExcelList();
 
     Excel *get_current_excel();
+    int get_current_page();
+    int get_excel_count();
     void move_next_window();
     void move_prev_window();
     void insert_window();

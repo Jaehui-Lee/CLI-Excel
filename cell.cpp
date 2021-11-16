@@ -1,5 +1,7 @@
 #include "cell.h"
 
+#include "unistd.h"
+
 /*------------------
         Cell
 -------------------*/
@@ -120,6 +122,7 @@ int ExprCell::to_numeric()
             }
         }
     }
+    exp_vec.clear();
     return st.top();
 }
 
@@ -184,6 +187,72 @@ void ExprCell::parse_expression()
                 st.pop();
             }
             st.push(data.substr(i, 1));
+        }
+    }
+}
+
+/*------------------
+      FuncCell
+-------------------*/
+
+FuncCell::FuncCell(string data, int x, int y, Table *t, Type type)
+    : data(data), Cell(x, y, t, type) {}
+
+string FuncCell::stringify()
+{ 
+    parse_function();
+    return to_string(to_numeric());
+}
+
+int FuncCell::to_numeric()
+{
+    int result;
+
+    //transform(func_vec[0].begin(), func_vec[0].end(), func_vec[0].begin(), ::toupper);
+    if ( func_vec[0] == "SUM" || func_vec[0] == "AVG" )
+    {
+        result = 0;
+        for ( int i = 1 ; i < func_vec.size() ; i++ )
+        {
+            //string s("A1");
+            string s = func_vec[i];
+            result += table->to_numeric(s);
+        }
+        if ( func_vec[0] == "AVG" )
+            result /= func_vec.size()-1;
+    }
+    func_vec.clear();
+    return result;
+}
+
+
+void FuncCell::parse_function()
+{
+    int i, j;
+
+    for ( i = 0 ; i < data.length() ; i++ )
+    {
+        if ( data[i] == '(' )
+        {
+            func_vec.push_back(data.substr(0, i));
+            break;
+        }
+    }
+
+    // specific case : SUM, AVG
+    for ( j = i+1 ; j < data.length() ; j++ )
+    {
+        if ( data[j] == ':' )
+        {
+            for ( char p = data[i+1] ; p <= data[j+1] ; p++ )
+            {
+                for ( int q = atoi(data.substr(i+2, j-i-2).c_str()) ; q <= atoi(data.substr(j+2, data.length()-j-1).c_str()) ; q++ )
+                {
+                    string s(1,p);
+                    s += to_string(q);
+                    func_vec.push_back(s);
+                }
+            }
         }
     }
 }
