@@ -5,6 +5,7 @@
 #include "ncurses.h"
 #include <iostream>
 #include <string>
+#include <typeinfo>
 
 using namespace std;
 
@@ -47,6 +48,10 @@ public:
 
     // change number to column name ( 0->A, 1->B, 2->C, ... , 25->Z )
     string col_num_to_str(int n);
+
+    bool is_empty(int row, int col);
+
+    const type_info& get_cell_type(int row, int col);
 
     void print_table();
 };

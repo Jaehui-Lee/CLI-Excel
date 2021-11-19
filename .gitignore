@@ -1,0 +1,11 @@
+# .o file ignore
+*.o
+
+# .DS_Store ignore
+.DS_Store
+
+# main executable file ignore
+main
+
+# .vscode ignore
+.vscode/

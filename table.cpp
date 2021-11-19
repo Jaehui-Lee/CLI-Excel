@@ -1,5 +1,7 @@
 #include "table.h"
 
+#include <unistd.h>
+
 /*------------------
         Table
 -------------------*/
@@ -97,6 +99,25 @@ string Table::stringify(int row, int col)
 void Table::print_table()
 {
     int *col_max_wide = new int[max_col_size];
+
+    for ( int i = 0 ; i < max_col_size ; i++ )
+    {
+        for ( int j = 0 ; j < max_row_size ; j++ )
+        {
+            if (data_table[j][i])
+            {
+                if (get_cell_type(j, i).name() == typeid(ExprCell).name())
+                {
+                    dynamic_cast<ExprCell*>(data_table[j][i])->parse_expression();
+                }
+                if (get_cell_type(j, i).name() == typeid(FuncCell).name())
+                {
+                    dynamic_cast<FuncCell*>(data_table[j][i])->parse_function();
+                }
+            }
+        }
+    }
+
     for (int i = 0; i < max_col_size; i++)
     {
         unsigned int max_wide = 2;
@@ -208,4 +229,16 @@ string Table::col_num_to_str(int n)
     }
 
     return s;
+}
+
+bool Table::is_empty(int row, int col)
+{
+    if ( !data_table[row][col] )
+        return true;
+    return false;
+}
+
+const type_info& Table::get_cell_type(int row, int col)
+{
+    return typeid(*data_table[row][col]);
 }

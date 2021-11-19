@@ -74,23 +74,23 @@ int Excel::parse_user_input(string s)
 
     if (command == "sets") // set string
     {
-        current_table->reg_cell(new StringCell(rest, row, col, current_table, STRING), row, col);
+        current_table->reg_cell(new StringCell(rest, row, col, current_table), row, col);
     }
     else if (command == "setn") // set number
     {
-        current_table->reg_cell(new NumberCell(atoi(rest.c_str()), row, col, current_table, NUMBER), row, col);
+        current_table->reg_cell(new NumberCell(atoi(rest.c_str()), row, col, current_table), row, col);
     }
     else if (command == "setd") // set date
     {
-        current_table->reg_cell(new DateCell(rest, row, col, current_table, DATE), row, col);
+        current_table->reg_cell(new DateCell(rest, row, col, current_table), row, col);
     }
     else if (command == "sete") // set expression
     {
-        current_table->reg_cell(new ExprCell(rest, row, col, current_table, EXPR), row, col);
+        current_table->reg_cell(new ExprCell(rest, row, col, current_table), row, col);
     }
     else if (command == "setf")
     {
-        current_table->reg_cell(new FuncCell(rest, row, col, current_table, FUNC), row, col);
+        current_table->reg_cell(new FuncCell(rest, row, col, current_table), row, col);
     }
     // else if (command == "save")
     // {

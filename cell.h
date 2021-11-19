@@ -6,6 +6,10 @@
 #include <vector>
 #include <stack>
 #include <string>
+#include <random>
+
+#define MAX_ROW_SIZE 18
+#define MAX_COL_SIZE 20
 
 using namespace std;
 
@@ -14,28 +18,18 @@ class Table;
 /*------------------
         Cell
 -------------------*/
-enum Type
-{
-    NONE = -1,
-    STRING = 0,
-    NUMBER = 1,
-    DATE = 2,
-    EXPR = 3,
-    FUNC = 4
-};
 
 class Cell
 {
 protected:
     int x, y;
     Table *table;
-    Type type;
 
 public:
     virtual string stringify() = 0;
     virtual int to_numeric() = 0;
 
-    Cell(int x, int y, Table *table, Type type);
+    Cell(int x, int y, Table *table);
 };
 
 /*------------------
@@ -50,7 +44,7 @@ public:
     string stringify();
     int to_numeric();
 
-    StringCell(string data, int x, int y, Table *t, Type type);
+    StringCell(string data, int x, int y, Table *t);
 };
 
 /*------------------
@@ -65,7 +59,7 @@ public:
     string stringify();
     int to_numeric();
 
-    NumberCell(int data, int x, int y, Table *t, Type type);
+    NumberCell(int data, int x, int y, Table *t);
 };
 
 /*------------------
@@ -80,7 +74,7 @@ public:
     string stringify();
     int to_numeric();
 
-    DateCell(string s, int x, int y, Table *t, Type type);
+    DateCell(string s, int x, int y, Table *t);
 };
 
 /*------------------
@@ -96,11 +90,11 @@ class ExprCell : public Cell
     // return operator precedence
     int precedence(char c);
 
+public:
+    ExprCell(string data, int x, int y, Table *t);
+
     // Analyze the expression
     void parse_expression();
-
-public:
-    ExprCell(string data, int x, int y, Table *t, Type type);
 
     string stringify();
     int to_numeric();
@@ -108,20 +102,24 @@ public:
 
 
 /*------------------
-      ExprCell
+      FuncCell
 -------------------*/
 
 class FuncCell : public Cell
 {
     string data;
+    int value; // for RAND, RANDBETWEEN
+    bool valid; // for RAND, RANDBETWEEN
 
     vector<string> func_vec;
     
-        // Analyze the function
-    void parse_function();
 
 public:
-    FuncCell(string data, int x, int y, Table *t, Type type);
+    FuncCell(string data, int x, int y, Table *t);
+
+    // Analyze the function
+    void parse_function();
+    void calculate();
 
     string stringify();
     int to_numeric();

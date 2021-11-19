@@ -1,19 +1,20 @@
 #include "cell.h"
 
 #include "unistd.h"
+#include <algorithm>
 
 /*------------------
         Cell
 -------------------*/
 
-Cell::Cell(int x, int y, Table *table, Type type) : x(x), y(y), type(NONE), table(table) {}
+Cell::Cell(int x, int y, Table *table) : x(x), y(y), table(table) {}
 
 /*------------------
      StringCell
 -------------------*/
 
-StringCell::StringCell(string data, int x, int y, Table *t, Type type)
-    : data(data), Cell(x, y, t, type) {}
+StringCell::StringCell(string data, int x, int y, Table *t)
+    : data(data), Cell(x, y, t) {}
 string StringCell::stringify() { return data; }
 int StringCell::to_numeric() { return 0; }
 
@@ -21,8 +22,8 @@ int StringCell::to_numeric() { return 0; }
      NumberCell
 -------------------*/
 
-NumberCell::NumberCell(int data, int x, int y, Table *t, Type type)
-    : data(data), Cell(x, y, t, type) {}
+NumberCell::NumberCell(int data, int x, int y, Table *t)
+    : data(data), Cell(x, y, t) {}
 
 string NumberCell::stringify() { return to_string(data); }
 int NumberCell::to_numeric() { return data; }
@@ -48,7 +49,7 @@ int DateCell::to_numeric()
     return static_cast<int>(data);
 }
 
-DateCell::DateCell(string s, int x, int y, Table *t, Type type) : Cell(x, y, t, type)
+DateCell::DateCell(string s, int x, int y, Table *t) : Cell(x, y, t)
 {
     // Date format : yyyy-mm-dd (Ex. 2021-01-01)
     int year = atoi(s.c_str());
@@ -71,12 +72,11 @@ DateCell::DateCell(string s, int x, int y, Table *t, Type type) : Cell(x, y, t, 
       ExprCell
 -------------------*/
 
-ExprCell::ExprCell(string data, int x, int y, Table *t, Type type)
-    : data(data), Cell(x, y, t, type) {}
+ExprCell::ExprCell(string data, int x, int y, Table *t)
+    : data(data), Cell(x, y, t) {}
 
 string ExprCell::stringify()
-{ 
-    parse_expression();
+{
     return to_string(to_numeric());
 }
 
@@ -122,7 +122,6 @@ int ExprCell::to_numeric()
             }
         }
     }
-    exp_vec.clear();
     return st.top();
 }
 
@@ -146,6 +145,7 @@ int ExprCell::precedence(char c)
 
 void ExprCell::parse_expression()
 {
+    exp_vec.clear();
     stack<string> st;
 
     // expression is surrounded by Parenthesis
@@ -195,64 +195,146 @@ void ExprCell::parse_expression()
       FuncCell
 -------------------*/
 
-FuncCell::FuncCell(string data, int x, int y, Table *t, Type type)
-    : data(data), Cell(x, y, t, type) {}
+FuncCell::FuncCell(string data, int x, int y, Table *t)
+    : data(data), value(0), valid(false), Cell(x, y, t) {}
 
 string FuncCell::stringify()
-{ 
-    parse_function();
+{
     return to_string(to_numeric());
 }
 
 int FuncCell::to_numeric()
 {
-    int result;
-
-    //transform(func_vec[0].begin(), func_vec[0].end(), func_vec[0].begin(), ::toupper);
-    if ( func_vec[0] == "SUM" || func_vec[0] == "AVG" )
-    {
-        result = 0;
-        for ( int i = 1 ; i < func_vec.size() ; i++ )
-        {
-            //string s("A1");
-            string s = func_vec[i];
-            result += table->to_numeric(s);
-        }
-        if ( func_vec[0] == "AVG" )
-            result /= func_vec.size()-1;
-    }
-    func_vec.clear();
-    return result;
+    return value;
 }
-
 
 void FuncCell::parse_function()
 {
+    func_vec.clear();
     int i, j;
 
-    for ( i = 0 ; i < data.length() ; i++ )
+    for (i = 0; i < data.length(); i++)
     {
-        if ( data[i] == '(' )
+        if (data[i] == '(')
         {
             func_vec.push_back(data.substr(0, i));
+            transform(func_vec[0].begin(), func_vec[0].end(), func_vec[0].begin(), ::toupper);
             break;
         }
     }
 
-    // specific case : SUM, AVG
-    for ( j = i+1 ; j < data.length() ; j++ )
+    // SUM, AVG, PRODUCT, MAX, MIN
+    if (func_vec.back() == "SUM" || func_vec.back() == "AVG" || func_vec.back() == "PRODUCT" || func_vec.back() == "MAX" || func_vec.back() == "MIN")
     {
-        if ( data[j] == ':' )
+        for (j = i + 1; j < data.length(); j++)
         {
-            for ( char p = data[i+1] ; p <= data[j+1] ; p++ )
+            if (data[j] == ':')
             {
-                for ( int q = atoi(data.substr(i+2, j-i-2).c_str()) ; q <= atoi(data.substr(j+2, data.length()-j-1).c_str()) ; q++ )
+                for (char p = data[i + 1]; p <= data[j + 1]; p++)
                 {
-                    string s(1,p);
-                    s += to_string(q);
-                    func_vec.push_back(s);
+                    for (int q = atoi(data.substr(i + 2, j - i - 2).c_str()); q <= atoi(data.substr(j + 2, data.length() - j - 1).c_str()); q++)
+                    {
+                        string s(1, p);
+                        s += to_string(q);
+                        func_vec.push_back(s);
+                    }
                 }
             }
+        }
+    }
+    // COUNT
+    else if (func_vec.back() == "COUNT")
+    {
+        func_vec.push_back(data.substr(i + 1, data.length() - i - 2));
+    }
+    // RAND ( 0 ~ 100 )
+    else if (func_vec.back() == "RAND")
+    {
+        // Nothing to do
+    }
+    // RANDBETWEEN
+    else if (func_vec.back() == "RANDBETWEEN")
+    {
+        for (j = i + 1; j < data.length(); j++)
+        {
+            if (data[j] == ',')
+            {
+                func_vec.push_back(data.substr(i + 1, j - i - 1));
+                func_vec.push_back(data.substr(j + 1, data.length() - j - 2));
+            }
+        }
+    }
+
+    calculate();
+}
+
+void FuncCell::calculate()
+{
+    if (func_vec[0] == "SUM" || func_vec[0] == "AVG")
+    {
+        value = 0;
+        for (int i = 1; i < func_vec.size(); i++)
+        {
+            value += table->to_numeric(func_vec[i]);
+        }
+        if (func_vec[0] == "AVG")
+            value /= func_vec.size() - 1;
+    }
+    else if (func_vec[0] == "PRODUCT")
+    {
+        value = 1;
+        for (int i = 1; i < func_vec.size(); i++)
+        {
+            value *= table->to_numeric(func_vec[i]);
+        }
+    }
+    else if (func_vec[0] == "COUNT")
+    {
+        value = 0;
+
+        for (int i = 0; i < MAX_ROW_SIZE; i++)
+        {
+            for (int j = 0; j < MAX_COL_SIZE; j++)
+            {
+                int f_value = atoi(func_vec[1].c_str()); // value to find
+                // RTTI
+                if (!table->is_empty(i, j) && table->to_numeric(i, j) == f_value)
+                {
+                    value++;
+                }
+            }
+        }
+    }
+    else if (func_vec[0] == "MAX" || func_vec[0] == "MIN")
+    {
+        value = table->to_numeric(func_vec[1]);
+
+        for (int i = 2; i < func_vec.size(); i++)
+        {
+            int temp = table->to_numeric(func_vec[i]);
+            if (func_vec[0] == "MAX")
+                value = (value < temp) ? temp : value;
+            else if (func_vec[0] == "MIN")
+                value = (value > temp) ? temp : value;
+        }
+    }
+    else if (func_vec[0] == "RAND" || func_vec[0] == "RANDBETWEEN")
+    {
+        if (!valid)
+        {
+            random_device rd;
+            mt19937_64 gen(rd());
+
+            uniform_int_distribution<int> dis(0, 100);
+            if (func_vec[0] == "RANDBETWEEN")
+            {
+                int start = atoi(func_vec[1].c_str());
+                int end = atoi(func_vec[2].c_str());
+                dis = uniform_int_distribution<int>(start, end);
+            }
+
+            value = dis(gen);
+            valid = true;
         }
     }
 }
