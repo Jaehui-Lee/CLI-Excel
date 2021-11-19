@@ -1,13 +1,11 @@
 #include "table.h"
 
-#include <unistd.h>
-
 /*------------------
         Table
 -------------------*/
 
 Table::Table(WINDOW *win, int max_row_size, int max_col_size)
-    : win(win), max_row_size(max_row_size), max_col_size(max_col_size)
+    : win(win), max_row_size(max_row_size), max_col_size(max_col_size), number_of_cell(0)
 {
     data_table = new Cell **[max_row_size];
     for (int i = 0; i < max_row_size; i++)
@@ -44,9 +42,11 @@ void Table::reg_cell(Cell *c, int row, int col)
 
     if (data_table[row][col])
     {
+        number_of_cell--;
         delete data_table[row][col];
     }
     data_table[row][col] = c;
+    number_of_cell++;
 }
 
 int Table::to_numeric(const string &s)
@@ -100,19 +100,19 @@ void Table::print_table()
 {
     int *col_max_wide = new int[max_col_size];
 
-    for ( int i = 0 ; i < max_col_size ; i++ )
+    for (int i = 0; i < max_col_size; i++)
     {
-        for ( int j = 0 ; j < max_row_size ; j++ )
+        for (int j = 0; j < max_row_size; j++)
         {
             if (data_table[j][i])
             {
                 if (get_cell_type(j, i).name() == typeid(ExprCell).name())
                 {
-                    dynamic_cast<ExprCell*>(data_table[j][i])->parse_expression();
+                    dynamic_cast<ExprCell *>(data_table[j][i])->parse_expression();
                 }
-                if (get_cell_type(j, i).name() == typeid(FuncCell).name())
+                else if (get_cell_type(j, i).name() == typeid(FuncCell).name())
                 {
-                    dynamic_cast<FuncCell*>(data_table[j][i])->parse_function();
+                    dynamic_cast<FuncCell *>(data_table[j][i])->parse_function();
                 }
             }
         }
@@ -146,7 +146,7 @@ void Table::print_table()
             wmove(win, y, x + 1);
             wprintw(win, " ");
             wprintw(win, col_num_to_str(i).c_str());
-            repeat_char(max_len-col_num_to_str(i).length(), " ");
+            repeat_char(max_len - col_num_to_str(i).length(), " ");
 
             total_wide += (max_len + 3);
         }
@@ -178,7 +178,7 @@ void Table::print_table()
 
         // data line
         wprintw(win, to_string(i + 1).c_str());
-        repeat_char(4-to_string(i+1).length(), " ");
+        repeat_char(4 - to_string(i + 1).length(), " ");
 
         for (int j = 0; j < max_col_size; j++)
         {
@@ -198,14 +198,14 @@ void Table::print_table()
                 wmove(win, y, x + 1);
                 wprintw(win, " ");
                 wprintw(win, s.c_str());
-                repeat_char(max_len-s.length(), " ");
+                repeat_char(max_len - s.length(), " ");
             }
         }
         wprintw(win, "\n");
     }
 }
 
-void Table::repeat_char(int n, const char* c)
+void Table::repeat_char(int n, const char *c)
 {
     for (int i = 0; i < n; i++)
         wprintw(win, c);
@@ -233,12 +233,46 @@ string Table::col_num_to_str(int n)
 
 bool Table::is_empty(int row, int col)
 {
-    if ( !data_table[row][col] )
+    if (!data_table[row][col])
         return true;
     return false;
 }
 
-const type_info& Table::get_cell_type(int row, int col)
+const type_info &Table::get_cell_type(int row, int col)
 {
     return typeid(*data_table[row][col]);
+}
+
+void Table::to_txt(ofstream& writeFile)
+{
+    map<string, string> m;
+    m.insert(pair<string, string>(string(typeid(NumberCell).name()), "NUMBER"));
+    m.insert(pair<string, string>(string(typeid(StringCell).name()), "STRING"));
+    m.insert(pair<string, string>(string(typeid(DateCell).name()), "DATE"));
+    m.insert(pair<string, string>(string(typeid(ExprCell).name()), "EXPRESSION"));
+    m.insert(pair<string, string>(string(typeid(FuncCell).name()), "FUNCTION"));
+
+    writeFile << number_of_cell << endl;
+    for (int i = 0; i < max_col_size; i++)
+    {
+        for (int j = 0; j < max_row_size; j++)
+        {
+            if (data_table[j][i])
+            {
+                writeFile << col_num_to_str(i) << j + 1 << " " << m[get_cell_type(j, i).name()] << " ";
+                if (get_cell_type(j, i).name() == typeid(ExprCell).name())
+                {
+                    writeFile << dynamic_cast<ExprCell *>(data_table[j][i])->get_data() << endl;
+                }
+                else if (get_cell_type(j, i).name() == typeid(FuncCell).name())
+                {
+                    writeFile << dynamic_cast<FuncCell *>(data_table[j][i])->get_data() << endl;
+                }
+                else
+                {
+                    writeFile << data_table[j][i]->stringify() << endl;
+                }
+            }
+        }
+    }
 }

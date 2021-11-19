@@ -6,6 +6,10 @@
 #include <iostream>
 #include <string>
 #include <typeinfo>
+#include <fstream>
+#include <ncurses.h>
+#include <map>
+#include <unistd.h>
 
 using namespace std;
 
@@ -21,6 +25,7 @@ protected:
     
     WINDOW* win;
     int max_row_size, max_col_size;
+    int number_of_cell;
 
     // A two-dimensional array that stores Cell*
     Cell ***data_table;
@@ -54,4 +59,6 @@ public:
     const type_info& get_cell_type(int row, int col);
 
     void print_table();
+
+    void to_txt(ofstream& writeFile);
 };

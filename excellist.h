@@ -1,3 +1,5 @@
+#pragma once
+
 #include "excel.h"
 
 #include <list>
@@ -10,12 +12,14 @@
 
 using namespace std;
 
+class Excel;
+
 class ExcelList
 {
 private:
     list<Excel *> excelList;
     int excel_count;   // from 1
-    int current_excel; // from 0
+    int current_excel; // from 1
 
 public:
     ExcelList();
@@ -27,4 +31,6 @@ public:
     void move_prev_window();
     void insert_window();
     void delete_window();
+
+    void to_txt(string to);
 };

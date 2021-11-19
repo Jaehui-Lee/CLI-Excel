@@ -7,6 +7,8 @@
 #include <stack>
 #include <string>
 #include <random>
+#include "unistd.h"
+#include <algorithm>
 
 #define MAX_ROW_SIZE 18
 #define MAX_COL_SIZE 20
@@ -96,6 +98,8 @@ public:
     // Analyze the expression
     void parse_expression();
 
+    string get_data();
+
     string stringify();
     int to_numeric();
 };
@@ -120,6 +124,8 @@ public:
     // Analyze the function
     void parse_function();
     void calculate();
+
+    string get_data();
 
     string stringify();
     int to_numeric();

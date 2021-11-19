@@ -1,8 +1,5 @@
 #include "cell.h"
 
-#include "unistd.h"
-#include <algorithm>
-
 /*------------------
         Cell
 -------------------*/
@@ -74,6 +71,11 @@ DateCell::DateCell(string s, int x, int y, Table *t) : Cell(x, y, t)
 
 ExprCell::ExprCell(string data, int x, int y, Table *t)
     : data(data), Cell(x, y, t) {}
+
+string ExprCell::get_data()
+{
+    return data;
+}
 
 string ExprCell::stringify()
 {
@@ -148,27 +150,29 @@ void ExprCell::parse_expression()
     exp_vec.clear();
     stack<string> st;
 
+    string data_exp = data;
+
     // expression is surrounded by Parenthesis
     // Ex. A1+A2+A3 -> (A1+A2+A3)
-    data.insert(0, "(");
-    data.push_back(')');
+    data_exp.insert(0, "(");
+    data_exp.push_back(')');
 
-    for (int i = 0; i < data.length(); i++)
+    for (int i = 0; i < data_exp.length(); i++)
     {
-        if (isalpha(data[i]))
+        if (isalpha(data_exp[i]))
         {
-            exp_vec.push_back(data.substr(i, 2));
+            exp_vec.push_back(data_exp.substr(i, 2));
             i++;
         }
-        else if (isdigit(data[i]))
+        else if (isdigit(data_exp[i]))
         {
-            exp_vec.push_back(data.substr(i, 1));
+            exp_vec.push_back(data_exp.substr(i, 1));
         }
-        else if (data[i] == '(' || data[i] == '[' || data[i] == '{')
+        else if (data_exp[i] == '(' || data_exp[i] == '[' || data_exp[i] == '{')
         { // Parenthesis
-            st.push(data.substr(i, 1));
+            st.push(data_exp.substr(i, 1));
         }
-        else if (data[i] == ')' || data[i] == ']' || data[i] == '}')
+        else if (data_exp[i] == ')' || data_exp[i] == ']' || data_exp[i] == '}')
         {
             string t = st.top();
             st.pop();
@@ -179,14 +183,14 @@ void ExprCell::parse_expression()
                 st.pop();
             }
         }
-        else if (data[i] == '+' || data[i] == '-' || data[i] == '*' || data[i] == '/')
+        else if (data_exp[i] == '+' || data_exp[i] == '-' || data_exp[i] == '*' || data_exp[i] == '/')
         {
-            while (!st.empty() && precedence(st.top()[0]) >= precedence(data[i]))
+            while (!st.empty() && precedence(st.top()[0]) >= precedence(data_exp[i]))
             {
                 exp_vec.push_back(st.top());
                 st.pop();
             }
-            st.push(data.substr(i, 1));
+            st.push(data_exp.substr(i, 1));
         }
     }
 }
@@ -197,6 +201,11 @@ void ExprCell::parse_expression()
 
 FuncCell::FuncCell(string data, int x, int y, Table *t)
     : data(data), value(0), valid(false), Cell(x, y, t) {}
+
+string FuncCell::get_data()
+{
+    return data;
+}
 
 string FuncCell::stringify()
 {
