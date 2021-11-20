@@ -27,7 +27,7 @@ public:
 
     int parse_user_input(string s);
     int command_line();
-    void print_table();
+    void print_table(string s);
 
     void to_txt(ofstream& writeFile, int current_excel);
 };

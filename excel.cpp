@@ -47,6 +47,9 @@ int Excel::parse_user_input(string s)
     if (command == "delete")
         return 4;
 
+    if (command == "find")
+        return 5;
+
     string to = "";
     for (int i = next; i < s.length(); i++)
     {
@@ -102,13 +105,13 @@ int Excel::parse_user_input(string s)
     return 1;
 }
 
-void Excel::print_table()
+void Excel::print_table(string s)
 {
     int row, col;
     string str = to_string(excelList->get_current_page()) + "/" + to_string(excelList->get_excel_count());
     getmaxyx(win, row, col);
     wclear(win);
-    current_table->print_table();
+    current_table->print_table(s);
     mvwprintw(win, row - 1, col - 10, str.c_str());
     mvwprintw(win, row - 1, 0, ">> ");
     wrefresh(win);
@@ -118,8 +121,9 @@ int Excel::command_line()
 {
     char cstr[80]; // user's command
     int ret;       // return value(attribute) of user's command
+    string st = "";
 
-    print_table(); // print table
+    print_table(st); // print table
     wgetstr(win, cstr);
     string s(cstr);
 
@@ -127,7 +131,8 @@ int Excel::command_line()
     {
         if (ret == 2 || ret == 3 || ret == 4) // if user's command is "next" or "prev" or "delete" (about sheet)
             return ret;
-        print_table(); // if not, keep going
+        else if (ret == 5) print_table(s);
+        else print_table(st); // if not, keep going
         wgetstr(win, cstr);
         s = cstr;
     }

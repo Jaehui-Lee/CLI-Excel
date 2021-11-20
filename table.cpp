@@ -96,7 +96,7 @@ string Table::stringify(int row, int col)
     return "";
 }
 
-void Table::print_table()
+void Table::print_table(string s)
 {
     int *col_max_wide = new int[max_col_size];
 
@@ -202,6 +202,69 @@ void Table::print_table()
             }
         }
         wprintw(win, "\n");
+    }
+
+    if (!(s == ""))
+    {
+        int next = 0;
+        string command = "";
+        for (int i = 0; i < s.length(); i++)
+        {
+            if (s[i] == ' ')
+            {
+                command = s.substr(0, i);
+                next = i + 1;
+                break;
+            }
+            else if (i == s.length() - 1)
+            {
+                command = s.substr(0, i + 1);
+                next = i + 1;
+                break;
+            }
+        }
+        string to = "";
+        for (int i = next; i < s.length(); i++)
+        {
+            if (s[i] == ' ' || i == s.length() - 1)
+            {
+                to = s.substr(next, i - next + 1);
+                next = i + 1;
+                break;
+            }
+            else if (i == s.length() - 1)
+            {
+                to = s.substr(0, i + 1);
+                next = i + 1;
+                break;
+            }
+        }
+        start_color();
+        init_pair(1, COLOR_RED, COLOR_BLACK);
+        attron(COLOR_PAIR(1));
+        for(int i = 0; i < max_col_size; i++)
+        {
+            for(int j = 0; j < max_row_size; j++)
+            {
+                if(data_table[j][i])
+                {
+                    string s = "";
+                    s = data_table[j][i]->stringify();
+                    if (to == s)
+                    {
+                        int x = cross_pos[i] + 2;
+                        int y = 2 * j + 2;
+                        int len = s.length();
+                        for(int k = 0; k < len; k++)
+                        {
+                            wmove(win, y+1, x+k);
+                            waddch(win, ACS_HLINE | COLOR_PAIR(1));                           
+                        }
+                    }
+                }
+            }
+        }
+        attroff(COLOR_PAIR(1));
     }
 }
 
