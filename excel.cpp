@@ -111,8 +111,13 @@ void Excel::print_table(string s)
     string str = to_string(excelList->get_current_page()) + "/" + to_string(excelList->get_excel_count());
     getmaxyx(win, row, col);
     wclear(win);
+<<<<<<< HEAD
     current_table->print_table(s);
     mvwprintw(win, row - 1, col - 10, str.c_str());
+=======
+    /* mvwprintw(win, 0, 0, current_table->print_table().c_str()); // print table */
+    current_table->print_table();
+>>>>>>> 5937c1c87a833a2561465a519c1309b1f1f93966
     mvwprintw(win, row - 1, 0, ">> ");
     wrefresh(win);
 }

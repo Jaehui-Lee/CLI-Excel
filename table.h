@@ -1,7 +1,10 @@
 #pragma once
 
 #include "cell.h"
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5937c1c87a833a2561465a519c1309b1f1f93966
 #include "ncurses.h"
 #include <iostream>
 #include <string>
@@ -25,8 +28,12 @@ protected:
     
     WINDOW* win;
     int max_row_size, max_col_size;
+<<<<<<< HEAD
     int number_of_cell;
 
+=======
+    WINDOW* win;
+>>>>>>> 5937c1c87a833a2561465a519c1309b1f1f93966
     // A two-dimensional array that stores Cell*
     Cell ***data_table;
 
@@ -54,6 +61,7 @@ public:
     // change number to column name ( 0->A, 1->B, 2->C, ... , 25->Z )
     string col_num_to_str(int n);
 
+<<<<<<< HEAD
     bool is_empty(int row, int col);
 
     const type_info& get_cell_type(int row, int col);
@@ -61,4 +69,7 @@ public:
     void print_table(string s);
 
     void to_txt(ofstream& writeFile);
+=======
+    void print_table();
+>>>>>>> 5937c1c87a833a2561465a519c1309b1f1f93966
 };

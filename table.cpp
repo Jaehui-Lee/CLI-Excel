@@ -4,8 +4,13 @@
         Table
 -------------------*/
 
+<<<<<<< HEAD
 Table::Table(WINDOW *win, int max_row_size, int max_col_size)
     : win(win), max_row_size(max_row_size), max_col_size(max_col_size), number_of_cell(0)
+=======
+Table::Table(WINDOW* win, int max_row_size, int max_col_size)
+    : win(win), max_row_size(max_row_size), max_col_size(max_col_size)
+>>>>>>> 5937c1c87a833a2561465a519c1309b1f1f93966
 {
     data_table = new Cell **[max_row_size];
     for (int i = 0; i < max_row_size; i++)
@@ -96,7 +101,11 @@ string Table::stringify(int row, int col)
     return "";
 }
 
+<<<<<<< HEAD
 void Table::print_table(string s)
+=======
+void Table::print_table()
+>>>>>>> 5937c1c87a833a2561465a519c1309b1f1f93966
 {
     int *col_max_wide = new int[max_col_size];
 
@@ -133,6 +142,10 @@ void Table::print_table(string s)
     }
 
     wprintw(win, "    ");
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5937c1c87a833a2561465a519c1309b1f1f93966
     int total_wide = 4;
     for (int i = 0; i < max_col_size; i++)
     {
@@ -145,8 +158,16 @@ void Table::print_table(string s)
             getyx(win, y, x);
             wmove(win, y, x + 1);
             wprintw(win, " ");
+<<<<<<< HEAD
             wprintw(win, col_num_to_str(i).c_str());
             repeat_char(max_len - col_num_to_str(i).length(), " ");
+=======
+            wprintw(win , col_num_to_str(i).c_str());
+            for(int j = 0; j < max_len - col_num_to_str(i).length(); j++)
+            {
+                wprintw(win, " ");
+            }
+>>>>>>> 5937c1c87a833a2561465a519c1309b1f1f93966
 
             total_wide += (max_len + 3);
         }
@@ -154,17 +175,27 @@ void Table::print_table(string s)
 
     wprintw(win, "\n");
 
+<<<<<<< HEAD
     int cross_pos[max_col_size];
     cross_pos[0] = 5;
+=======
+    int num[max_col_size];
+    num[0] = 5;
+>>>>>>> 5937c1c87a833a2561465a519c1309b1f1f93966
 
     for (int i = 0; i <= max_col_size; i++)
     {
         int max_len = max(2, col_max_wide[i]);
+<<<<<<< HEAD
         cross_pos[i + 1] = max_len + 3 + cross_pos[i];
+=======
+        num[i + 1] = max_len + 3 + num[i];
+>>>>>>> 5937c1c87a833a2561465a519c1309b1f1f93966
     }
 
     for (int i = 0; i < max_row_size; i++)
     {
+<<<<<<< HEAD
         // horizontal line
         int x, y;
         whline(win, ACS_HLINE, total_wide);
@@ -179,14 +210,34 @@ void Table::print_table(string s)
         // data line
         wprintw(win, to_string(i + 1).c_str());
         repeat_char(4 - to_string(i + 1).length(), " ");
+=======
+        int x, y;
+        whline(win, ACS_HLINE, total_wide);
+        getyx(win, y, x);
+        for(int i = 0; i <= max_col_size; i++)
+        {
+            wmove(win, y, num[i]);
+            whline(win, ACS_PLUS, 1);
+        }
+        wprintw(win, "\n");
+        wprintw(win, to_string(i +1).c_str());
+        for(int j = 0; j < 4 - to_string(i + 1).length(); j++)
+        {
+            wprintw(win, " ");
+        }
+>>>>>>> 5937c1c87a833a2561465a519c1309b1f1f93966
 
         for (int j = 0; j < max_col_size; j++)
         {
             if (col_max_wide[j])
             {
                 int max_len = max(2, col_max_wide[j]);
+<<<<<<< HEAD
                 int x, y;
 
+=======
+                int x , y;
+>>>>>>> 5937c1c87a833a2561465a519c1309b1f1f93966
                 string s = "";
                 if (data_table[i][j])
                 {
@@ -198,11 +249,19 @@ void Table::print_table(string s)
                 wmove(win, y, x + 1);
                 wprintw(win, " ");
                 wprintw(win, s.c_str());
+<<<<<<< HEAD
                 repeat_char(max_len - s.length(), " ");
+=======
+                for(int j = 0; j < max_len - s.length(); j++)
+                {
+                wprintw(win, " ");
+                }
+>>>>>>> 5937c1c87a833a2561465a519c1309b1f1f93966
             }
         }
         wprintw(win, "\n");
     }
+<<<<<<< HEAD
 
     if (!(s == ""))
     {
@@ -266,6 +325,8 @@ void Table::print_table(string s)
         }
         attroff(COLOR_PAIR(1));
     }
+=======
+>>>>>>> 5937c1c87a833a2561465a519c1309b1f1f93966
 }
 
 void Table::repeat_char(int n, const char *c)
