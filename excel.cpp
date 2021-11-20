@@ -94,6 +94,11 @@ int Excel::parse_user_input(string s)
     {
         excelList->to_txt(to);
     }
+    else if (command == "find")
+    {
+        print_table(to);
+        return 5;
+    }
     else if (command == "exit")
     {
         return 0;
@@ -102,13 +107,13 @@ int Excel::parse_user_input(string s)
     return 1;
 }
 
-void Excel::print_table()
+void Excel::print_table(string look_for = "")
 {
     int row, col;
     string str = to_string(excelList->get_current_page()) + "/" + to_string(excelList->get_excel_count());
     getmaxyx(win, row, col);
     wclear(win);
-    current_table->print_table();
+    current_table->print_table(look_for);
     mvwprintw(win, row - 1, col - 10, str.c_str());
     mvwprintw(win, row - 1, 0, ">> ");
     wrefresh(win);
@@ -127,7 +132,8 @@ int Excel::command_line()
     {
         if (ret == 2 || ret == 3 || ret == 4) // if user's command is "next" or "prev" or "delete" (about sheet)
             return ret;
-        print_table(); // if not, keep going
+        else if ( ret == 5 ) {} // if user's command is "find"
+        else print_table(); // if not, keep going
         wgetstr(win, cstr);
         s = cstr;
     }

@@ -36,6 +36,8 @@ int main()
         usleep(100000);
 
         initscr();
+        start_color();
+        init_pair(1, COLOR_BLACK, COLOR_WHITE);
 
         InitialPage ip(stdscr); // when program starts, show initial page
         int choice = 0; // user's choice on initial page
@@ -82,7 +84,6 @@ int main()
                 break;
             }
         }
-
         endwin();
 
         return 0;

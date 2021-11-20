@@ -58,7 +58,7 @@ public:
 
     const type_info& get_cell_type(int row, int col);
 
-    void print_table();
+    void print_table(string look_for);
 
     void to_txt(ofstream& writeFile);
 };

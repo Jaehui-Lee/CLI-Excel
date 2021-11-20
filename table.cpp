@@ -96,7 +96,7 @@ string Table::stringify(int row, int col)
     return "";
 }
 
-void Table::print_table()
+void Table::print_table(string look_for = "")
 {
     int *col_max_wide = new int[max_col_size];
 
@@ -197,7 +197,11 @@ void Table::print_table()
                 getyx(win, y, x);
                 wmove(win, y, x + 1);
                 wprintw(win, " ");
+                if ( look_for != "" && look_for == s )
+                    wattron(win, COLOR_PAIR(1));
                 wprintw(win, s.c_str());
+                if ( look_for != "" && look_for == s )
+                    wattroff(win, COLOR_PAIR(1));
                 repeat_char(max_len - s.length(), " ");
             }
         }
