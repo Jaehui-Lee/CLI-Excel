@@ -23,34 +23,34 @@ $ ./main
 ```bash
 # In Excel
 
- - set number
+# set number
 >> setn A1 10
 
- - set string
+# set string
 >> sets A1 abc
 
- - set date
+# set date
 >> setd A1 2021-11-11
 
- - set expression (Arithmetic operation)
+# set expression (Arithmetic operation)
 >> sete A5 A1+A2*A3/A4
 
- - set function (Excel Function)
+# set function (Excel Function)
 >> setf A5 SUM(A1:A4)
 
- - next sheet
+# move to next sheet
 >> next
 
- - prev sheet
+# move to prev sheet
 >> prev
 
- - delete sheet
+# delete current sheet
 >> delete
 
- - save to txt
+# save to txt
 >> save filename.txt
 
- - exit (return to initial page)
+# exit (return to initial page)
 >> exit
 ```
 
@@ -89,7 +89,8 @@ $ ./main
     - InitialPage (2021/11/10)
         - When the program starts, it displays the following user menu
             - Create New Excel
-            - Open Excel (Not yet)
+            - Open Excel (2021/11/23)
+                - If you enter a file name, an Excel list in which data is stored is created
             - Manual (Not yet)
             - Exit
     - Excel

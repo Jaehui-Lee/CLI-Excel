@@ -33,4 +33,5 @@ public:
     void delete_window();
 
     void to_txt(string to);
+    bool from_txt(string from);
 };

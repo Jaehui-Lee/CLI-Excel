@@ -73,3 +73,25 @@ void ExcelList::to_txt(string to)
     }
     writeFile.close();
 }
+
+bool ExcelList::from_txt(string from)
+{
+    ifstream readFile(from.data());
+    if ( readFile.is_open() )
+    {
+        int count = 0;
+        readFile >> count;
+        for ( int i = 0 ; i < count-1 ; i++ )
+            insert_window();
+        for ( int i = 0 ; i < count ; i++ )
+        {
+            readFile >> current_excel;
+            Excel* excel = get_current_excel();
+            excel->from_txt(readFile);
+        }
+        current_excel = 1;
+        return true;
+    }
+    else
+        return false;
+}

@@ -16,6 +16,16 @@ class ExcelList;
 
 class Excel
 {
+    enum COMMAND
+    {
+        EXIT = 0,
+        OTHERS = 1,
+        NEXT = 2,
+        PREV = 3,
+        DELETE = 4,
+        FIND = 5,
+    };
+
     Table *current_table;
     WINDOW *win;
     ExcelList *excelList;
@@ -30,4 +40,5 @@ public:
     void print_table(string look_for);
 
     void to_txt(ofstream& writeFile, int current_excel);
+    void from_txt(ifstream& readFile);
 };
