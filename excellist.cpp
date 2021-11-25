@@ -1,4 +1,6 @@
 #include "excellist.h"
+#include <iostream>
+#include <sstream>
 
 ExcelList::ExcelList() : excel_count(1), current_excel(1)
 {
@@ -39,11 +41,13 @@ void ExcelList::move_prev_window()
 
 void ExcelList::move_to_window(string to)
 {
-    int go_excel = std::stoi(to);
-    if ((current_excel != go_excel)&&(go_excel <= excel_count)&&(go_excel >= 1))
-    {
-        current_excel = go_excel;
-    }
+   int go_excel;
+   std::stringstream ssInt(to);
+   ssInt >> go_excel;
+   if (!ssInt.fail()){
+       if ((current_excel != go_excel)&&(go_excel <= excel_count)&&(go_excel >= 1))
+			current_excel = go_excel;
+   }
 }
 
 void ExcelList::insert_window()
