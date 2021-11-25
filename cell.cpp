@@ -96,7 +96,7 @@ int ExprCell::to_numeric()
         {
             st.push(table->to_numeric(s));
         }
-        // if Number ( 0 ~ 9 )
+        // if Number
         else if (isdigit(s[0]))
         {
             st.push(atoi(s.c_str()));
@@ -161,12 +161,19 @@ void ExprCell::parse_expression()
     {
         if (isalpha(data_exp[i]))
         {
-            exp_vec.push_back(data_exp.substr(i, 2));
-            i++;
+            int count = 0;
+            while(isalnum(data_exp[i+count]))
+                count++;
+            exp_vec.push_back(data_exp.substr(i, count));
+            i += count-1;
         }
         else if (isdigit(data_exp[i]))
         {
-            exp_vec.push_back(data_exp.substr(i, 1));
+            int count = 0;
+            while(isdigit(data_exp[i+count]))
+                count++;
+            exp_vec.push_back(data_exp.substr(i, count));
+            i += count-1;
         }
         else if (data_exp[i] == '(' || data_exp[i] == '[' || data_exp[i] == '{')
         { // Parenthesis

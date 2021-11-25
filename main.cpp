@@ -42,39 +42,45 @@ int main()
         InitialPage ip(stdscr); // when program starts, show initial page
         int choice = 0; // user's choice on initial page
 
-        ExcelList excelList; // n excel sheet
-
         while ((choice = ip.init_screen()) != -1) // if user's choice is 'Exit', go out
         {
             if (choice == 1) // Create New Excel
             {
+                ExcelList excelList;
                 while (true)
                 {
                     Excel *m = excelList.get_current_excel();
-                    /*
-                        if user enter command 'next' or 'prev' or 'delete' or 'exit', m->command_line() return
-                    */
-                    int ret = m->command_line();
-                    if (ret == 2) // next
-                    {
-                        excelList.move_next_window();
-                    }
-                    else if (ret == 3) // prev
-                    {
-                        excelList.move_prev_window();
-                    }
-                    else if (ret == 4) // delete
-                    {
-                        excelList.delete_window();
-                    }
-                    else // exit
-                    {
+                    if ( !(m->command_line()) )
                         break;
-                    }
                 }
             }
             else if (choice == 2) // Open Excel
             {
+                ExcelList excelList;
+                char f_name[80];
+                int row, col;
+                getmaxyx(stdscr, row, col);
+                mvwprintw(stdscr, row - 1, 0, ">> ");
+                wgetstr(stdscr, f_name);
+                string from(f_name);
+                if ( excelList.from_txt(from) )
+                {
+                    while(true)
+                    {
+                        Excel *m = excelList.get_current_excel();
+                        
+                        if ( !(m->command_line()) )
+                            break;
+                    }
+                }
+                else
+                {
+                    wattron(stdscr, COLOR_PAIR(1));
+                    mvwprintw(stdscr, row - 1, 0, "File doesn't exits");
+                    wattroff(stdscr, COLOR_PAIR(1));
+                    wrefresh(stdscr);
+                    sleep(2);
+                }
             }
             else if (choice == 3) // Manual
             {

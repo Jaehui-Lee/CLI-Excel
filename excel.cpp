@@ -39,13 +39,13 @@ int Excel::parse_user_input(string s)
     transform(command.begin(), command.end(), command.begin(), ::tolower);
 
     if (command == "next")
-        return 2;
+        return NEXT;
 
     if (command == "prev")
-        return 3;
+        return PREV;
 
     if (command == "delete")
-        return 4;
+        return DELETE;
 
     string to = "";
     for (int i = next; i < s.length(); i++)
@@ -86,25 +86,25 @@ int Excel::parse_user_input(string s)
     {
         current_table->reg_cell(new ExprCell(rest, row, col, current_table), row, col);
     }
-    else if (command == "setf")
+    else if (command == "setf") // set function
     {
         current_table->reg_cell(new FuncCell(rest, row, col, current_table), row, col);
     }
-    else if (command == "save")
+    else if (command == "save") // save to txt
     {
         excelList->to_txt(to);
     }
-    else if (command == "find")
+    else if (command == "find") // find cell
     {
         print_table(to);
-        return 5;
+        return FIND;
     }
     else if (command == "exit")
     {
-        return 0;
+        return EXIT;
     }
 
-    return 1;
+    return OTHERS;
 }
 
 void Excel::print_table(string look_for = "")
@@ -130,9 +130,22 @@ int Excel::command_line()
 
     while ((ret = parse_user_input(s))) // analysis of user input
     {
-        if (ret == 2 || ret == 3 || ret == 4) // if user's command is "next" or "prev" or "delete" (about sheet)
+        if ( ret == NEXT )
+        {
+            excelList->move_next_window();
             return ret;
-        else if ( ret == 5 ) {} // if user's command is "find"
+        }
+        else if ( ret == PREV )
+        {
+            excelList->move_prev_window();
+            return ret;
+        }
+        else if ( ret == DELETE )
+        {
+            excelList->delete_window();
+            return ret;
+        }
+        else if ( ret == FIND ) {} // if user's command is "find"
         else print_table(); // if not, keep going
         wgetstr(win, cstr);
         s = cstr;
@@ -144,4 +157,40 @@ void Excel::to_txt(ofstream& writeFile, int current_excel)
 {
     writeFile << current_excel << " ";
     current_table->to_txt(writeFile);
+}
+
+void Excel::from_txt(ifstream& readFile)
+{
+    int number_of_data = 0;
+    readFile >> number_of_data;
+
+    string name; // A1, A2, B1, ...
+    string type; // STRING, NUMBER, DATE, EXPRESSION, FUNCTION
+    string value; // 10, abc, 2021-01-01, A1+A2, SUM(A1:A2), ...
+    for ( int i = 0 ; i < number_of_data ; i++ )
+    {
+        readFile >> name >> type >> value;
+        int col = name[0] - 'A';
+        int row = atoi(name.c_str() + 1) - 1;
+        if (type == "STRING") // set string
+        {
+            current_table->reg_cell(new StringCell(value, row, col, current_table), row, col);
+        }
+        else if (type == "NUMBER") // set number
+        {
+            current_table->reg_cell(new NumberCell(atoi(value.c_str()), row, col, current_table), row, col);
+        }
+        else if (type == "DATE") // set date
+        {
+            current_table->reg_cell(new DateCell(value, row, col, current_table), row, col);
+        }
+        else if (type == "EXPRESSION") // set expression
+        {
+            current_table->reg_cell(new ExprCell(value, row, col, current_table), row, col);
+        }
+        else if (type == "FUNCTION") // set function
+        {
+            current_table->reg_cell(new FuncCell(value, row, col, current_table), row, col);
+        }
+    }
 }
