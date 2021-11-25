@@ -4,6 +4,7 @@
 #include "excellist.h"
 #include "ncurses.h"
 
+#include <cstring>
 #include <algorithm>
 
 using namespace std;

@@ -4,7 +4,7 @@
        Excel
 -------------------*/
 
-Excel::Excel(WINDOW *_win, int max_row, int max_col, ExcelList* excelList) : win(_win), excelList(excelList)
+Excel::Excel(WINDOW *_win, int max_row, int max_col, ExcelList *excelList) : win(_win), excelList(excelList)
 {
     current_table = new Table(win, max_row, max_col);
 }
@@ -106,6 +106,37 @@ int Excel::parse_user_input(string s)
     }
     else if (command == "exit")
     {
+        int row, col;
+        char str[10];
+        getmaxyx(stdscr, row, col);
+        while (true)
+        {
+            wattron(win, COLOR_PAIR(1));
+            mvwprintw(win, row - 1, 0, "Do you want to save file?(Y/N) ");
+            wattroff(win, COLOR_PAIR(1));
+            wrefresh(win);
+            wgetstr(win, str);
+            if ( !strcmp(str, "Y") || !strcmp(str, "y") )
+            {
+                mvwprintw(win, row - 1, 0, "                                "); // remove "Do you want to save file?(Y/N)" on screen
+                wattron(win, COLOR_PAIR(1));
+                mvwprintw(win, row - 1, 0, "Enter the name of file : ");
+                wattroff(win, COLOR_PAIR(1));
+                wrefresh(win);
+                wgetstr(win, str);
+                to = str;
+                excelList->to_txt(to);
+                break;
+            }
+            else if ( !strcmp(str, "N") || !strcmp(str, "n") )
+            {
+                break; // don't save and return to initial page
+            }
+            else
+            {
+                return OTHERS; // don't save and return to command line
+            }
+        }
         return EXIT;
     }
 
@@ -135,48 +166,51 @@ int Excel::command_line()
 
     while ((ret = parse_user_input(s))) // analysis of user input
     {
-        if ( ret == NEXT )
+        if (ret == NEXT)
         {
             excelList->move_next_window();
             return ret;
         }
-        else if ( ret == PREV )
+        else if (ret == PREV)
         {
             excelList->move_prev_window();
             return ret;
         }
-        else if ( ret == DELETE )
+        else if (ret == DELETE)
         {
             excelList->delete_window();
             return ret;
         }
-        else if ( ret == FIND ) {} // if user's command is "find"
-        else if ( ret == GOTO ) 
+        else if (ret == FIND)
+        {
+        } // if user's command is "find"
+        else if (ret == GOTO)
         {
             return ret;
         }
-        else print_table(); // if not, keep going
+        else
+            print_table(); // if not, keep going
         wgetstr(win, cstr);
         s = cstr;
     }
     return ret;
 }
 
-void Excel::to_txt(ofstream& writeFile, int current_excel)
+void Excel::to_txt(ofstream &writeFile, int current_excel)
 {
     writeFile << current_excel << " ";
     current_table->to_txt(writeFile);
 }
 
-void Excel::from_txt(ifstream& readFile)
+void Excel::from_txt(ifstream &readFile)
 {
     int number_of_data = 0;
     readFile >> number_of_data;
 
-    string name; // A1, A2, B1, ...
-    string type; // STRING, NUMBER, DATE, EXPRESSION, FUNCTION
+    string name;  // A1, A2, B1, ...
+    string type;  // STRING, NUMBER, DATE, EXPRESSION, FUNCTION
     string value; // 10, abc, 2021-01-01, A1+A2, SUM(A1:A2), ...
-    for ( int i = 0 ; i < number_of_data ; i++ )
+    for (int i = 0; i < number_of_data; i++)
     {
         readFile >> name >> type >> value;
         int col = name[0] - 'A';
