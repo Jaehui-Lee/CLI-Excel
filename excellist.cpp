@@ -44,6 +44,15 @@ void ExcelList::insert_window()
     excel_count++;
 }
 
+void ExcelList::move_to_window(string to)
+{
+    int go_excel = std::stoi(to);
+    if ((current_excel != go_excel)&&(go_excel <= excel_count)&&(go_excel >= 1))
+    {
+        current_excel = go_excel;
+    }
+}
+
 void ExcelList::delete_window()
 {
     if (excel_count == 1)

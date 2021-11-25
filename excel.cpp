@@ -99,6 +99,11 @@ int Excel::parse_user_input(string s)
         print_table(to);
         return FIND;
     }
+    else if (command == "goto") // go to another excel
+    {
+        excelList->move_to_window(to);
+        return GOTO;
+    }
     else if (command == "exit")
     {
         return EXIT;
@@ -146,6 +151,10 @@ int Excel::command_line()
             return ret;
         }
         else if ( ret == FIND ) {} // if user's command is "find"
+        else if ( ret == GOTO ) 
+        {
+            return ret;
+        }
         else print_table(); // if not, keep going
         wgetstr(win, cstr);
         s = cstr;

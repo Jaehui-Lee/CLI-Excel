@@ -31,6 +31,7 @@ public:
     void move_prev_window();
     void insert_window();
     void delete_window();
+    void move_to_window(string to);
 
     void to_txt(string to);
     bool from_txt(string from);
