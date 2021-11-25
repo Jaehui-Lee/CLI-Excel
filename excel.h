@@ -24,6 +24,7 @@ class Excel
         PREV = 3,
         DELETE = 4,
         FIND = 5,
+        GOTO = 6,
     };
 
     Table *current_table;

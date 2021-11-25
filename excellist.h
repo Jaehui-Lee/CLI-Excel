@@ -29,6 +29,7 @@ public:
     int get_excel_count();
     void move_next_window();
     void move_prev_window();
+    void move_to_window(string to);
     void insert_window();
     void delete_window();
 

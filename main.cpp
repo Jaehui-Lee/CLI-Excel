@@ -46,9 +46,9 @@ int main()
         {
             if (choice == 1) // Create New Excel
             {
+                ExcelList excelList;
                 while (true)
                 {
-                    ExcelList excelList;
                     Excel *m = excelList.get_current_excel();
                     if ( !(m->command_line()) )
                         break;

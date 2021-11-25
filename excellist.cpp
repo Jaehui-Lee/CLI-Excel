@@ -37,6 +37,15 @@ void ExcelList::move_prev_window()
         current_excel--;
 }
 
+void ExcelList::move_to_window(string to)
+{
+    int go_excel = std::stoi(to);
+    if ((current_excel != go_excel)&&(go_excel <= excel_count)&&(go_excel >= 1))
+    {
+        current_excel = go_excel;
+    }
+}
+
 void ExcelList::insert_window()
 {
     WINDOW *win = newwin(WIN_ROW_SIZE, WIN_COL_SIZE, 0, 0);

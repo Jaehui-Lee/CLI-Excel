@@ -90,6 +90,11 @@ int Excel::parse_user_input(string s)
     {
         current_table->reg_cell(new FuncCell(rest, row, col, current_table), row, col);
     }
+    else if (command == "goto") // go to another excel
+    {
+        excelList->move_to_window(to);
+        return GOTO;
+    }
     else if (command == "save") // save to txt
     {
         excelList->to_txt(to);
@@ -138,6 +143,10 @@ int Excel::command_line()
         else if ( ret == PREV )
         {
             excelList->move_prev_window();
+            return ret;
+        }
+        else if ( ret == GOTO ) 
+        {
             return ret;
         }
         else if ( ret == DELETE )
