@@ -10,7 +10,8 @@
 #include <ncurses.h>
 #include <map>
 #include <unistd.h>
-
+#include <vector>
+#include <algorithm>
 using namespace std;
 
 class Cell;
@@ -37,7 +38,9 @@ public:
 
     // Register a new cell
     void reg_cell(Cell *c, int row, int col);
-
+    void sort_cell(string where_sort, string how_sort);
+    vector<string> sort_vec;
+    
     // Returns the integer value of the cell
     // s : cell name (such as A3, B6)
     int to_numeric(const string &s);

@@ -21,10 +21,17 @@ int Excel::parse_user_input(string s)
     string command = "";
     for (int i = 0; i < s.length(); i++)
     {
-        if (s[i] == ' ')
+        if (s[i] == ' ' || s[i] == '(')
         {
             command = s.substr(0, i);
-            next = i + 1;
+            if (s[i] == ' ')
+            {
+                next = i + 1;
+            }
+            if (s[i] == '(')
+            {
+                next = i;
+            }
             break;
         }
         else if (i == s.length() - 1)
@@ -103,6 +110,10 @@ int Excel::parse_user_input(string s)
     {
         excelList->move_to_window(to);
         return GOTO;
+    }
+        else if (command == "sort") // sort cell
+    {
+        current_table->sort_cell(to, rest);
     }
     else if (command == "exit")
     {

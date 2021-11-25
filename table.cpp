@@ -49,6 +49,59 @@ void Table::reg_cell(Cell *c, int row, int col)
     number_of_cell++;
 }
 
+void Table::sort_cell(string where_sort, string how_sort = "acs")
+{
+    sort_vec.clear();
+    for (int i = 1; i < where_sort.length(); i++)            
+    {
+        if (where_sort[i] == ':')
+        {
+            for (char p = where_sort[1]; p <= where_sort[i + 1]; p++)
+            {
+                for (int q = atoi(where_sort.substr(2, i - 2).c_str()); q <= atoi(where_sort.substr(i + 2, where_sort.length() - i - 1).c_str()); q++)
+                {
+                    string s(1, p);
+                    s += to_string(q);
+                    sort_vec.push_back(s);
+                }
+            }
+        }
+    }
+
+    int num = sort_vec.size();
+    int count = 0;
+    for (int i = 0; i < num; i++)
+    {
+        int col = sort_vec[i][0] - 'A';
+        int row = atoi(sort_vec[i].c_str() + 1) - 1;
+        if (data_table[row][col] && !(get_cell_type(row, col) == typeid(DateCell)) && !(get_cell_type(row, col) == typeid(StringCell))) count++;
+    }
+
+    int sort_value[count];
+    int sort_row[count];
+    int sort_col[count];
+    int j = 0;
+    for (int i = 0; i < num; i++)
+    {
+        int col = sort_vec[i][0] - 'A';
+        int row = atoi(sort_vec[i].c_str() + 1) - 1;
+        if (data_table[row][col] && !(get_cell_type(row, col) == typeid(DateCell)) && !(get_cell_type(row, col) == typeid(StringCell))) 
+        {
+            sort_value[j] = data_table[row][col]->to_numeric();
+            sort_row[j] = row;
+            sort_col[j] = col;
+            j++;
+        }
+    }
+    
+    if (how_sort == "desc") sort(sort_value, sort_value+count, greater<int>());
+    else sort(sort_value, sort_value+count);
+
+    for (int i = 0; i < count; i++)
+    {
+        reg_cell(new NumberCell(sort_value[i], sort_row[i], sort_col[i], this), sort_row[i], sort_col[i]);
+    }
+}
 int Table::to_numeric(const string &s)
 {
     // Cell name
