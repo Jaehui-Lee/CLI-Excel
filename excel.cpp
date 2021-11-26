@@ -17,23 +17,19 @@ Excel::~Excel()
 
 int Excel::parse_user_input(string s)
 {
-    int next = 0;
     string command = "";
-    for (int i = 0; i < s.length(); i++)
-    {
-        if (s[i] == ' ')
-        {
-            command = s.substr(0, i);
-            next = i + 1;
-            break;
-        }
-        else if (i == s.length() - 1)
-        {
-            command = s.substr(0, i + 1);
-            next = i + 1;
-            break;
-        }
-    }
+    string to = "";
+    string rest = "";
+
+    // ex. setn A1:A5 1 2 3 4 5
+    vector<string> v_to; //  In case of many 'to' (ex. A1:A5)
+    vector<string> v_rest; // In case of many 'rest' (ex. 1 2 3 4 5)
+
+    // divide input-string into 3 parts by blank
+    istringstream ss(s);
+    getline(ss, command, ' ');
+    getline(ss, to, ' ');
+    getline(ss, rest);
 
     // transform command to lowercase
     transform(command.begin(), command.end(), command.begin(), ::tolower);
@@ -47,48 +43,87 @@ int Excel::parse_user_input(string s)
     if (command == "delete")
         return DELETE;
 
-    string to = "";
-    for (int i = next; i < s.length(); i++)
-    {
-        if (s[i] == ' ')
-        {
-            to = s.substr(next, i - next);
-            next = i + 1;
-            break;
-        }
-        else if (i == s.length() - 1)
-        {
-            to = s.substr(next, i - next + 1);
-            next = i + 1;
-            break;
-        }
-    }
-
     // Cell name
-    int col = to[0] - 'A';
-    int row = atoi(to.c_str() + 1) - 1;
+    int col, row;
 
-    string rest = s.substr(next);
+    if ( to.find(':') == string::npos )
+    {
+        v_to.push_back(to);
+        v_rest.push_back(rest);
+    }
+    else
+    {
+        // Cells based on range -> independent Cell
+        // A1:A5 -> A1 A2 A3 A4 A5
+        // push back to v_to
+        ss = istringstream(to);
+        string start, end;
+        getline(ss, start, ':');
+        getline(ss, end);
+        for ( char p = start[0] ; p <= end[0] ; p++ )
+        {
+            for ( int q = stoi(start.substr(1)) ; q <= stoi(end.substr(1)) ; q++ )
+            {
+                string cell_name(1,p);
+                cell_name += to_string(q);
+                v_to.push_back(cell_name);
+            }
+        }
+        // push back to v_rest
+        ss = istringstream(rest);
+        string value;
+        while(getline(ss, value, ' '))
+        {
+            v_rest.push_back(value);
+        }
+        if ( v_to.size() != v_rest.size() )
+            return ERROR;
+    }
 
     if (command == "sets") // set string
     {
-        current_table->reg_cell(new StringCell(rest, row, col, current_table), row, col);
+        for ( int i = 0 ; i < v_to.size() ; i++ )
+        {
+            col = v_to[i][0] - 'A';
+            row = stoi(v_to[i].substr(1))-1;
+            current_table->reg_cell(new StringCell(v_rest[i], row, col, current_table), row, col);
+        }
     }
     else if (command == "setn") // set number
     {
-        current_table->reg_cell(new NumberCell(atoi(rest.c_str()), row, col, current_table), row, col);
+        for ( int i = 0 ; i < v_to.size() ; i++ )
+        {
+            col = v_to[i][0] - 'A';
+            row = stoi(v_to[i].substr(1))-1;
+            current_table->reg_cell(new NumberCell(stoi(v_rest[i]), row, col, current_table), row, col);
+        }
     }
     else if (command == "setd") // set date
     {
-        current_table->reg_cell(new DateCell(rest, row, col, current_table), row, col);
+        for ( int i = 0 ; i < v_to.size() ; i++ )
+        {
+            col = v_to[i][0] - 'A';
+            row = stoi(v_to[i].substr(1))-1;
+            current_table->reg_cell(new DateCell(v_rest[i], row, col, current_table), row, col);
+        }
     }
     else if (command == "sete") // set expression
     {
-        current_table->reg_cell(new ExprCell(rest, row, col, current_table), row, col);
+        for ( int i = 0 ; i < v_to.size() ; i++ )
+        {
+            col = v_to[i][0] - 'A';
+            row = stoi(v_to[i].substr(1))-1;
+            current_table->reg_cell(new ExprCell(v_rest[i], row, col, current_table), row, col);
+        }
     }
     else if (command == "setf") // set function
     {
-        current_table->reg_cell(new FuncCell(rest, row, col, current_table), row, col);
+        for ( int i = 0 ; i < v_to.size() ; i++ )
+        {
+            col = v_to[i][0] - 'A';
+            row = stoi(v_to[i].substr(1))-1;
+            current_table->reg_cell(new FuncCell(v_rest[i], row, col, current_table), row, col);
+        }
     }
     else if (command == "save") // save to txt
     {
@@ -188,6 +223,10 @@ int Excel::command_line()
         {
             return ret;
         }
+        else if ( ret == ERROR )
+        {
+
+        }
         else
             print_table(); // if not, keep going
         wgetstr(win, cstr);
@@ -214,14 +253,14 @@ void Excel::from_txt(ifstream &readFile)
     {
         readFile >> name >> type >> value;
         int col = name[0] - 'A';
-        int row = atoi(name.c_str() + 1) - 1;
+        int row = stoi(name.substr(1))-1;
         if (type == "STRING") // set string
         {
             current_table->reg_cell(new StringCell(value, row, col, current_table), row, col);
         }
         else if (type == "NUMBER") // set number
         {
-            current_table->reg_cell(new NumberCell(atoi(value.c_str()), row, col, current_table), row, col);
+            current_table->reg_cell(new NumberCell(stoi(value), row, col, current_table), row, col);
         }
         else if (type == "DATE") // set date
         {

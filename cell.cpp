@@ -49,9 +49,9 @@ int DateCell::to_numeric()
 DateCell::DateCell(string s, int x, int y, Table *t) : Cell(x, y, t)
 {
     // Date format : yyyy-mm-dd (Ex. 2021-01-01)
-    int year = atoi(s.c_str());
-    int month = atoi(s.c_str() + 5);
-    int day = atoi(s.c_str() + 8);
+    int year = stoi(s);
+    int month = stoi(s.substr(5));
+    int day = stoi(s.substr(8));
 
     tm timeinfo;
 
@@ -99,7 +99,7 @@ int ExprCell::to_numeric()
         // if Number
         else if (isdigit(s[0]))
         {
-            st.push(atoi(s.c_str()));
+            st.push(stoi(s));
         }
         else
         {
@@ -242,19 +242,17 @@ void FuncCell::parse_function()
     // SUM, AVG, PRODUCT, MAX, MIN
     if (func_vec.back() == "SUM" || func_vec.back() == "AVG" || func_vec.back() == "PRODUCT" || func_vec.back() == "MAX" || func_vec.back() == "MIN")
     {
-        for (j = i + 1; j < data.length(); j++)
+        istringstream ss(data.substr(i+1, data.length()-i-2));
+        string start, end;
+        getline(ss, start, ':');
+        getline(ss, end);
+        for ( char p = start[0] ; p <= end[0] ; p++ )
         {
-            if (data[j] == ':')
+            for ( int q = stoi(start.substr(1)) ; q <= stoi(end.substr(1)) ; q++ )
             {
-                for (char p = data[i + 1]; p <= data[j + 1]; p++)
-                {
-                    for (int q = atoi(data.substr(i + 2, j - i - 2).c_str()); q <= atoi(data.substr(j + 2, data.length() - j - 1).c_str()); q++)
-                    {
-                        string s(1, p);
-                        s += to_string(q);
-                        func_vec.push_back(s);
-                    }
-                }
+                string cell_name(1,p);
+                cell_name += to_string(q);
+                func_vec.push_back(cell_name);
             }
         }
     }
@@ -312,7 +310,7 @@ void FuncCell::calculate()
         {
             for (int j = 0; j < MAX_COL_SIZE; j++)
             {
-                int f_value = atoi(func_vec[1].c_str()); // value to find
+                int f_value = stoi(func_vec[1]); // value to find
                 // RTTI
                 if (!table->is_empty(i, j) && table->to_numeric(i, j) == f_value)
                 {
@@ -344,8 +342,8 @@ void FuncCell::calculate()
             uniform_int_distribution<int> dis(0, 100);
             if (func_vec[0] == "RANDBETWEEN")
             {
-                int start = atoi(func_vec[1].c_str());
-                int end = atoi(func_vec[2].c_str());
+                int start = stoi(func_vec[1]);
+                int end = stoi(func_vec[2]);
                 dis = uniform_int_distribution<int>(start, end);
             }
 

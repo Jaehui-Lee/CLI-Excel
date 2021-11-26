@@ -6,6 +6,7 @@
 
 #include <cstring>
 #include <algorithm>
+#include <vector>
 
 using namespace std;
 
@@ -19,6 +20,7 @@ class Excel
 {
     enum COMMAND
     {
+        ERROR = -1,
         EXIT = 0,
         OTHERS = 1,
         NEXT = 2,

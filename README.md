@@ -1,6 +1,22 @@
 # CLI-Excel
 
-* How to use
+## Introduction
+> Excel program running in CLI environment
+
+## Member
+* PM
+> 이재희
+
+* Architect
+> 서명원 강다빈
+
+* Developer
+> 이재희 전주형 서명원 강다빈 오수현
+
+* Operator
+> 전주형 오수현
+
+## How to use
 
 ```bash
 $ sudo apt-get install libncurses5-dev libncursesw5-dev
@@ -41,6 +57,9 @@ $ ./main
 # move to next sheet
 >> next
 
+# move to n-th sheet
+>> goto 5
+
 # move to prev sheet
 >> prev
 
@@ -50,10 +69,14 @@ $ ./main
 # save to txt
 >> save filename.txt
 
+# find value
+>> find 10
+
 # exit (return to initial page)
 >> exit
 ```
 
+## History
 - Base Source
     - Cell
         - NumberCell
@@ -79,7 +102,7 @@ $ ./main
 - What we made
     - Code-splitting by class
     - Cell
-        - Add FuncCell (2021/11/17)
+        - FuncCell (2021/11/17)
             - This Cell stores string data (Excel Function) such as "SUM(A1:A4)"
             - parsing function
             - Kinds : SUM, AVG, PRODUCT, COUNT, MIN, MAX, RAND, RANDBETWEEN
@@ -94,11 +117,18 @@ $ ./main
             - Manual (Not yet)
             - Exit
     - Excel
-        - Add Save (2021/11/19)
+        - Save (2021/11/19)
             - When input is received in the format of "SAVE filename", the to_txt() function is called in the order of ExcelList→Excel→Table to save the data to the file
+        - Find (2021/11/20)
+            - You can find what you want
+        - Set value based on range (2021/11/26)
+            - Ex : setn A1:A5 1 2 3 4 5
     - ExcelList
-        - Add Sheet (2021/11/11)
+        - Sheet (2021/11/11)
             - You can create, move, and delete sheets with the next, prev, and delete commands
+        - Goto (2021/11/25)
+            - You can go to nth-sheet
+            - goto 5
     - main
         - When starting the program, use fork() and execlp() to set the terminal window size to 120 width and 40 height
         - We implemented so that Excel functions can be used until the user selects exit in InitialPage

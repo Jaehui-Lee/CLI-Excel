@@ -2,7 +2,9 @@
 
 #include "excel.h"
 
+#include <iostream>
 #include <list>
+#include <sstream>
 
 #define MAX_ROW_SIZE 18
 #define MAX_COL_SIZE 20

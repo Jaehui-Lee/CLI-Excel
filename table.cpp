@@ -53,7 +53,7 @@ int Table::to_numeric(const string &s)
 {
     // Cell name
     int col = s[0] - 'A';
-    int row = atoi(s.c_str() + 1) - 1;
+    int row = stoi(s.substr(1))-1;
 
     if (row < max_row_size && col < max_col_size)
     {
@@ -76,7 +76,7 @@ string Table::stringify(const string &s)
 {
     // Cell name
     int col = s[0] - 'A';
-    int row = atoi(s.c_str() + 1) - 1;
+    int row = stoi(s.substr(1))-1;
 
     if (row < max_row_size && col < max_col_size)
     {
