@@ -22,12 +22,13 @@ class Excel
     {
         ERROR = -1,
         EXIT = 0,
-        OTHERS = 1,
+        NORMAL = 1,
         NEXT = 2,
         PREV = 3,
         DELETE = 4,
         FIND = 5,
         GOTO = 6,
+        SAVE = 7,
     };
 
     Table *current_table;

@@ -2,7 +2,9 @@
 
 ExcelList::ExcelList() : excel_count(1), current_excel(1)
 {
-    WINDOW *win = newwin(WIN_ROW_SIZE, WIN_COL_SIZE, 0, 0);
+    int row, col;
+    getmaxyx(stdscr, row, col);
+    WINDOW *win = newwin(row, col, 0, 0);
     excelList.push_back(new Excel(win, MAX_ROW_SIZE, MAX_COL_SIZE, this));
 }
 
@@ -39,7 +41,9 @@ void ExcelList::move_prev_window()
 
 void ExcelList::insert_window()
 {
-    WINDOW *win = newwin(WIN_ROW_SIZE, WIN_COL_SIZE, 0, 0);
+    int row, col;
+    getmaxyx(stdscr, row, col);
+    WINDOW *win = newwin(row, col, 0, 0);
     excelList.push_back(new Excel(win, MAX_ROW_SIZE, MAX_COL_SIZE, this));
     excel_count++;
 }

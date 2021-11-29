@@ -22,7 +22,7 @@ int Excel::parse_user_input(string s)
     string rest = "";
 
     // ex. setn A1:A5 1 2 3 4 5
-    vector<string> v_to; //  In case of many 'to' (ex. A1:A5)
+    vector<string> v_to;   //  In case of many 'to' (ex. A1:A5)
     vector<string> v_rest; // In case of many 'rest' (ex. 1 2 3 4 5)
 
     // divide input-string into 3 parts by blank
@@ -35,18 +35,68 @@ int Excel::parse_user_input(string s)
     transform(command.begin(), command.end(), command.begin(), ::tolower);
 
     if (command == "next")
+    {
+        excelList->move_next_window();
         return NEXT;
-
-    if (command == "prev")
+    }
+    else if (command == "prev")
+    {
+        excelList->move_prev_window();
         return PREV;
-
-    if (command == "delete")
+    }
+    else if (command == "delete")
+    {
+        excelList->delete_window();
         return DELETE;
+    }
+    else if (command == "exit")
+    {
+        int row, col;
+        char str[10];
+        getmaxyx(stdscr, row, col);
+        while (true)
+        {
+            wattron(win, COLOR_PAIR(1));
+            mvwprintw(win, row - 1, 0, "Do you want to save file?(Y/N)");
+            wattroff(win, COLOR_PAIR(1));
+            wprintw(win, " ");
+            wrefresh(win);
+            wgetstr(win, str);
+            if (!strcmp(str, "Y") || !strcmp(str, "y"))
+            {
+                mvwprintw(win, row - 1, 0, "                                "); // remove "Do you want to save file?(Y/N)" on screen
+                wattron(win, COLOR_PAIR(1));
+                mvwprintw(win, row - 1, 0, "Enter the name of file :");
+                wattroff(win, COLOR_PAIR(1));
+                wprintw(win, " ");
+                wrefresh(win);
+                wgetstr(win, str);
+                to = str;
+                // file name can be only nothing except of .txt ( not .csv, .hwp, .xlsx, ...)
+                if (to.find('.') != string::npos)
+                {
+                    if (to.substr(to.find('.')) != ".txt")
+                        return ERROR;
+                }
+                excelList->to_txt(to);
+                break;
+            }
+            else if (!strcmp(str, "N") || !strcmp(str, "n"))
+            {
+                break; // don't save and return to initial page
+            }
+            else
+            {
+                return NORMAL; // don't save and return to command line
+            }
+        }
+        return EXIT;
+    }
 
     // Cell name
     int col, row;
 
-    if ( to.find(':') == string::npos )
+    if (to.find(':') == string::npos)
     {
         v_to.push_back(to);
         v_rest.push_back(rest);
@@ -60,11 +110,28 @@ int Excel::parse_user_input(string s)
         string start, end;
         getline(ss, start, ':');
         getline(ss, end);
-        for ( char p = start[0] ; p <= end[0] ; p++ )
+
+        // check cell name error
+        if (!(start[0] >= 'A' && start[0] <= 'Z'))
+            return ERROR;
+        if (!(end[0] >= 'A' && end[0] <= 'Z'))
+            return ERROR;
+        for (int i = 1; i < start.length(); i++)
         {
-            for ( int q = stoi(start.substr(1)) ; q <= stoi(end.substr(1)) ; q++ )
+            if (!isdigit(start[i]))
+                return ERROR;
+        }
+        for (int i = 1; i < end.length(); i++)
+        {
+            if (!isdigit(end[i]))
+                return ERROR;
+        }
+
+        for (char p = start[0]; p <= end[0]; p++)
+        {
+            for (int q = stoi(start.substr(1)); q <= stoi(end.substr(1)); q++)
             {
-                string cell_name(1,p);
+                string cell_name(1, p);
                 cell_name += to_string(q);
                 v_to.push_back(cell_name);
             }
@@ -72,110 +139,153 @@ int Excel::parse_user_input(string s)
         // push back to v_rest
         ss = istringstream(rest);
         string value;
-        while(getline(ss, value, ' '))
+        while (getline(ss, value, ' '))
         {
             v_rest.push_back(value);
         }
-        if ( v_to.size() != v_rest.size() )
+        if (v_to.size() != v_rest.size())
             return ERROR;
     }
 
-    if (command == "sets") // set string
+    if (command == "save") // save to txt
     {
-        for ( int i = 0 ; i < v_to.size() ; i++ )
+        // file name can be only nothing except of .txt ( not .csv, .hwp, .xlsx, ...)
+        if (to.find('.') != string::npos)
         {
-            col = v_to[i][0] - 'A';
-            row = stoi(v_to[i].substr(1))-1;
-            current_table->reg_cell(new StringCell(v_rest[i], row, col, current_table), row, col);
+            if (to.substr(to.find('.')) != ".txt")
+                return ERROR;
         }
-    }
-    else if (command == "setn") // set number
-    {
-        for ( int i = 0 ; i < v_to.size() ; i++ )
-        {
-            col = v_to[i][0] - 'A';
-            row = stoi(v_to[i].substr(1))-1;
-            current_table->reg_cell(new NumberCell(stoi(v_rest[i]), row, col, current_table), row, col);
-        }
-    }
-    else if (command == "setd") // set date
-    {
-        for ( int i = 0 ; i < v_to.size() ; i++ )
-        {
-            col = v_to[i][0] - 'A';
-            row = stoi(v_to[i].substr(1))-1;
-            current_table->reg_cell(new DateCell(v_rest[i], row, col, current_table), row, col);
-        }
-    }
-    else if (command == "sete") // set expression
-    {
-        for ( int i = 0 ; i < v_to.size() ; i++ )
-        {
-            col = v_to[i][0] - 'A';
-            row = stoi(v_to[i].substr(1))-1;
-            current_table->reg_cell(new ExprCell(v_rest[i], row, col, current_table), row, col);
-        }
-    }
-    else if (command == "setf") // set function
-    {
-        for ( int i = 0 ; i < v_to.size() ; i++ )
-        {
-            col = v_to[i][0] - 'A';
-            row = stoi(v_to[i].substr(1))-1;
-            current_table->reg_cell(new FuncCell(v_rest[i], row, col, current_table), row, col);
-        }
-    }
-    else if (command == "save") // save to txt
-    {
         excelList->to_txt(to);
+        return SAVE;
     }
     else if (command == "find") // find cell
     {
+        // "to" must be number
+        if (to.length() == 0)
+            return ERROR;
+        else if (to.length() == 1 && !isdigit(to[0]))
+            return ERROR;
+        else if (to.length() > 1 && to[0] == '0')
+            return ERROR;
+        for (int i = 0; i < to.length(); i++)
+        {
+            if (!isdigit(to[i]))
+                return ERROR;
+        }
         print_table(to);
         return FIND;
     }
     else if (command == "goto") // go to another excel
     {
+        // "to" must be number > 0
+        if (to.length() == 0)
+            return ERROR;
+        else if (to[0] == '0')
+            return ERROR;
+        for (int i = 0; i < to.length(); i++)
+        {
+            if (!isdigit(to[i]))
+                return ERROR;
+        }
         excelList->move_to_window(to);
         return GOTO;
     }
-    else if (command == "exit")
+
+    // check cell name error
+    for (int i = 0; i < v_to.size(); i++)
     {
-        int row, col;
-        char str[10];
-        getmaxyx(stdscr, row, col);
-        while (true)
+        if (v_to[i].length() < 2)
+            return ERROR;
+        else if (!(v_to[i][0] >= 'A' && v_to[i][0] <= 'Z'))
+            return ERROR;
+        else if (!(v_to[i][1] >= '1' && v_to[i][1] <= '9'))
+            return ERROR;
+        else if (stoi(v_to[i].substr(1)) > MAX_ROW_SIZE)
+            return ERROR;
+        for (int j = 2; j < v_to[i].length(); j++)
         {
-            wattron(win, COLOR_PAIR(1));
-            mvwprintw(win, row - 1, 0, "Do you want to save file?(Y/N) ");
-            wattroff(win, COLOR_PAIR(1));
-            wrefresh(win);
-            wgetstr(win, str);
-            if ( !strcmp(str, "Y") || !strcmp(str, "y") )
-            {
-                mvwprintw(win, row - 1, 0, "                                "); // remove "Do you want to save file?(Y/N)" on screen
-                wattron(win, COLOR_PAIR(1));
-                mvwprintw(win, row - 1, 0, "Enter the name of file : ");
-                wattroff(win, COLOR_PAIR(1));
-                wrefresh(win);
-                wgetstr(win, str);
-                to = str;
-                excelList->to_txt(to);
-                break;
-            }
-            else if ( !strcmp(str, "N") || !strcmp(str, "n") )
-            {
-                break; // don't save and return to initial page
-            }
-            else
-            {
-                return OTHERS; // don't save and return to command line
-            }
+            if (!isdigit(v_to[i][j]))
+                return ERROR;
         }
-        return EXIT;
     }
 
-    return OTHERS;
+    if (command == "sets") // set string
+    {
+        for (int i = 0; i < v_to.size(); i++)
+        {
+            col = v_to[i][0] - 'A';
+            row = stoi(v_to[i].substr(1)) - 1;
+            current_table->reg_cell(new StringCell(v_rest[i], row, col, current_table), row, col);
+        }
+    }
+    else if (command == "setn") // set number
+    {
+        for (int i = 0; i < v_to.size(); i++)
+        {
+            // check value error
+            if (v_rest[i].length() == 0)
+                return ERROR;
+            else if (v_rest[i].length() == 1 && !isdigit(v_rest[i][0]))
+                return ERROR;
+            else if (v_rest[i].length() > 1 && v_rest[i][0] == '0')
+                return ERROR;
+            for (int j = 1; j < v_rest[i].length(); j++)
+            {
+                if (!isdigit(v_rest[i][j]))
+                    return ERROR;
+            }
+            col = v_to[i][0] - 'A';
+            row = stoi(v_to[i].substr(1)) - 1;
+            current_table->reg_cell(new NumberCell(stoi(v_rest[i]), row, col, current_table), row, col);
+        }
+        return NORMAL;
+    }
+    else if (command == "setd") // set date
+    {
+        for (int i = 0; i < v_to.size(); i++)
+        {
+            // check value error
+            if (v_rest[i].length() != 10)
+                return ERROR;
+            for (int j = 0; j < 10; j++)
+            {
+                if (j == 4 || j == 7)
+                {
+                    if (v_rest[i][j] != '-')
+                        return ERROR;
+                    continue;
+                }
+                if (!isdigit(v_rest[i][j]))
+                    return ERROR;
+            }
+            col = v_to[i][0] - 'A';
+            row = stoi(v_to[i].substr(1)) - 1;
+            current_table->reg_cell(new DateCell(v_rest[i], row, col, current_table), row, col);
+        }
+        return NORMAL;
+    }
+    else if (command == "sete") // set expression
+    {
+        for (int i = 0; i < v_to.size(); i++)
+        {
+            col = v_to[i][0] - 'A';
+            row = stoi(v_to[i].substr(1)) - 1;
+            current_table->reg_cell(new ExprCell(v_rest[i], row, col, current_table), row, col);
+        }
+        return NORMAL;
+    }
+    else if (command == "setf") // set function
+    {
+        for (int i = 0; i < v_to.size(); i++)
+        {
+            col = v_to[i][0] - 'A';
+            row = stoi(v_to[i].substr(1)) - 1;
+            current_table->reg_cell(new FuncCell(v_rest[i], row, col, current_table), row, col);
+        }
+        return NORMAL;
+    }
+
+    return ERROR;
 }
 
 void Excel::print_table(string look_for = "")
@@ -194,6 +304,9 @@ int Excel::command_line()
 {
     char cstr[80]; // user's command
     int ret;       // return value(attribute) of user's command
+    int row, col;
+
+    getmaxyx(win, row, col);
 
     print_table(); // print table
     wgetstr(win, cstr);
@@ -201,31 +314,22 @@ int Excel::command_line()
 
     while ((ret = parse_user_input(s))) // analysis of user input
     {
-        if (ret == NEXT)
-        {
-            excelList->move_next_window();
-            return ret;
-        }
-        else if (ret == PREV)
-        {
-            excelList->move_prev_window();
-            return ret;
-        }
-        else if (ret == DELETE)
-        {
-            excelList->delete_window();
-            return ret;
-        }
-        else if (ret == FIND)
-        {
-        } // if user's command is "find"
-        else if (ret == GOTO)
+        if (ret == NEXT || ret == PREV || ret == DELETE || ret == GOTO)
         {
             return ret;
         }
-        else if ( ret == ERROR )
+        else if (ret == FIND) // if user's command is "find"
         {
-
+        }
+        else if (ret == ERROR)
+        {
+            mvwprintw(win, row - 1, 0, "                                ");
+            wattron(stdscr, COLOR_PAIR(1));
+            mvwprintw(stdscr, row - 1, 0, "        Wrong command!        ");
+            wattroff(stdscr, COLOR_PAIR(1));
+            wrefresh(stdscr);
+            sleep(2);
+            print_table();
         }
         else
             print_table(); // if not, keep going
@@ -253,7 +357,7 @@ void Excel::from_txt(ifstream &readFile)
     {
         readFile >> name >> type >> value;
         int col = name[0] - 'A';
-        int row = stoi(name.substr(1))-1;
+        int row = stoi(name.substr(1)) - 1;
         if (type == "STRING") // set string
         {
             current_table->reg_cell(new StringCell(value, row, col, current_table), row, col);
