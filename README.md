@@ -130,5 +130,6 @@ $ ./main
             - You can go to nth-sheet
             - goto 5
     - main
-        - When starting the program, use fork() and execlp() to set the terminal window size to 120 width and 40 height
         - We implemented so that Excel functions can be used until the user selects exit in InitialPage
+    - Error Handling
+        - Add Error checking in command about cell name, value(number, date), ... (2021/11/30)
