@@ -15,6 +15,119 @@ Excel::~Excel()
     delete current_table;
 }
 
+bool Excel::is_number(string str)
+{
+    if (str.length() == 0)
+        return false;
+    else if (str.length() == 1 && !isdigit(str[0]))
+        return false;
+    else if (str.length() > 1 && str[0] == '0')
+        return false;
+    for (int i = 0; i < str.length(); i++)
+    {
+        if (!isdigit(str[i]))
+            return false;
+    }
+    return true;
+}
+
+bool Excel::is_number(vector<string> v_str)
+{
+    for ( int i = 0 ; i < v_str.size() ; i++ )
+    {
+        if (v_str[i].length() == 0)
+            return false;
+        else if (v_str[i].length() == 1 && !isdigit(v_str[i][0]))
+            return false;
+        else if (v_str[i].length() > 1 && v_str[i][0] == '0')
+            return false;
+        for (int j = 1; j < v_str[i].length(); j++)
+        {
+            if (!isdigit(v_str[i][j]))
+                return false;
+        }
+    }
+    return true;
+}
+
+bool Excel::is_date(vector<string> v_str)
+{
+    for ( int i = 0 ; i < v_str.size() ; i++ )
+    {
+        if (v_str[i].length() != 10)
+            return false;
+        for (int j = 0; j < 10; j++)
+        {
+            if (j == 4 || j == 7)
+            {
+                if (v_str[i][j] != '-')
+                    return false;
+                continue;
+            }
+            if (!isdigit(v_str[i][j]))
+                return false;
+        }
+    }
+    return true;
+}
+
+bool Excel::is_cell_name(string str)
+{
+    if (str.length() < 2)
+        return false;
+    else if (!isupper(str[0]))
+        return false;
+    else if (!(str[1] >= '1' && str[1] <= '9'))
+        return false;
+    else if (stoi(str.substr(1)) > MAX_ROW_SIZE)
+        return false;
+    for (int j = 2; j < str.length(); j++)
+    {
+        if (!isdigit(str[j]))
+            return false;
+    }
+    return true;
+}
+
+bool Excel::is_cell_name(vector<string> v_str)
+{
+    for (int i = 0; i < v_str.size(); i++)
+    {
+        if (v_str[i].length() < 2)
+            return false;
+        else if (!isupper(v_str[i][0]))
+            return false;
+        else if (!(v_str[i][1] >= '1' && v_str[i][1] <= '9'))
+            return false;
+        else if (stoi(v_str[i].substr(1)) > MAX_ROW_SIZE)
+            return false;
+        for (int j = 2; j < v_str[i].length(); j++)
+        {
+            if (!isdigit(v_str[i][j]))
+                return false;
+        }
+    }
+    return true;
+}
+
+bool Excel::is_expr(vector<string> v_str)
+{
+    for ( int i = 0 ; i < v_str.size() ; i++ )
+    {
+        // TODO
+    }
+    return true;
+}
+
+bool Excel::is_func(vector<string> v_str)
+{
+    for ( int i = 0 ; i < v_str.size() ; i++ )
+    {
+        // TODO
+    }
+    return true;
+}
+
 int Excel::parse_user_input(string s)
 {
     string command = "";
@@ -92,10 +205,7 @@ int Excel::parse_user_input(string s)
         }
         return EXIT;
     }
-
-    // Cell name
-    int col, row;
-
+    
     if (to.find(':') == string::npos)
     {
         v_to.push_back(to);
@@ -112,20 +222,10 @@ int Excel::parse_user_input(string s)
         getline(ss, end);
 
         // check cell name error
-        if (!(start[0] >= 'A' && start[0] <= 'Z'))
+        if ( !is_cell_name(start) )
             return ERROR;
-        if (!(end[0] >= 'A' && end[0] <= 'Z'))
+        if ( !is_cell_name(end) )
             return ERROR;
-        for (int i = 1; i < start.length(); i++)
-        {
-            if (!isdigit(start[i]))
-                return ERROR;
-        }
-        for (int i = 1; i < end.length(); i++)
-        {
-            if (!isdigit(end[i]))
-                return ERROR;
-        }
 
         for (char p = start[0]; p <= end[0]; p++)
         {
@@ -161,53 +261,25 @@ int Excel::parse_user_input(string s)
     else if (command == "find") // find cell
     {
         // "to" must be number
-        if (to.length() == 0)
+        if ( !is_number(to) )
             return ERROR;
-        else if (to.length() == 1 && !isdigit(to[0]))
-            return ERROR;
-        else if (to.length() > 1 && to[0] == '0')
-            return ERROR;
-        for (int i = 0; i < to.length(); i++)
-        {
-            if (!isdigit(to[i]))
-                return ERROR;
-        }
         print_table(to);
         return FIND;
     }
     else if (command == "goto") // go to another excel
     {
         // "to" must be number > 0
-        if (to.length() == 0)
+        if ( !is_number(to) )
             return ERROR;
-        else if (to[0] == '0')
-            return ERROR;
-        for (int i = 0; i < to.length(); i++)
-        {
-            if (!isdigit(to[i]))
-                return ERROR;
-        }
         excelList->move_to_window(to);
         return GOTO;
     }
 
     // check cell name error
-    for (int i = 0; i < v_to.size(); i++)
-    {
-        if (v_to[i].length() < 2)
-            return ERROR;
-        else if (!(v_to[i][0] >= 'A' && v_to[i][0] <= 'Z'))
-            return ERROR;
-        else if (!(v_to[i][1] >= '1' && v_to[i][1] <= '9'))
-            return ERROR;
-        else if (stoi(v_to[i].substr(1)) > MAX_ROW_SIZE)
-            return ERROR;
-        for (int j = 2; j < v_to[i].length(); j++)
-        {
-            if (!isdigit(v_to[i][j]))
-                return ERROR;
-        }
-    }
+    if ( !is_cell_name(v_to) )
+        return ERROR;
+
+    int col, row;
 
     if (command == "sets") // set string
     {
@@ -220,20 +292,11 @@ int Excel::parse_user_input(string s)
     }
     else if (command == "setn") // set number
     {
+        // check value(number) error
+        if ( !is_number(v_rest) )
+            return ERROR;
         for (int i = 0; i < v_to.size(); i++)
         {
-            // check value error
-            if (v_rest[i].length() == 0)
-                return ERROR;
-            else if (v_rest[i].length() == 1 && !isdigit(v_rest[i][0]))
-                return ERROR;
-            else if (v_rest[i].length() > 1 && v_rest[i][0] == '0')
-                return ERROR;
-            for (int j = 1; j < v_rest[i].length(); j++)
-            {
-                if (!isdigit(v_rest[i][j]))
-                    return ERROR;
-            }
             col = v_to[i][0] - 'A';
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new NumberCell(stoi(v_rest[i]), row, col, current_table), row, col);
@@ -242,22 +305,11 @@ int Excel::parse_user_input(string s)
     }
     else if (command == "setd") // set date
     {
+        // check value(date) error
+        if ( !is_date(v_rest) )
+            return ERROR;
         for (int i = 0; i < v_to.size(); i++)
         {
-            // check value error
-            if (v_rest[i].length() != 10)
-                return ERROR;
-            for (int j = 0; j < 10; j++)
-            {
-                if (j == 4 || j == 7)
-                {
-                    if (v_rest[i][j] != '-')
-                        return ERROR;
-                    continue;
-                }
-                if (!isdigit(v_rest[i][j]))
-                    return ERROR;
-            }
             col = v_to[i][0] - 'A';
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new DateCell(v_rest[i], row, col, current_table), row, col);
@@ -266,6 +318,9 @@ int Excel::parse_user_input(string s)
     }
     else if (command == "sete") // set expression
     {
+        // check expression error
+        if ( !is_expr(v_rest) )
+            return ERROR;
         for (int i = 0; i < v_to.size(); i++)
         {
             col = v_to[i][0] - 'A';
@@ -276,6 +331,9 @@ int Excel::parse_user_input(string s)
     }
     else if (command == "setf") // set function
     {
+        // check function error
+        if ( !is_func(v_rest) )
+            return ERROR;
         for (int i = 0; i < v_to.size(); i++)
         {
             col = v_to[i][0] - 'A';

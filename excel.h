@@ -7,6 +7,7 @@
 #include <cstring>
 #include <algorithm>
 #include <vector>
+#include <cctype>
 
 using namespace std;
 
@@ -34,6 +35,14 @@ class Excel
     Table *current_table;
     WINDOW *win;
     ExcelList *excelList;
+
+    bool is_number(string str);
+    bool is_number(vector<string> v_str);
+    bool is_date(vector<string> v_str);
+    bool is_cell_name(string str);
+    bool is_cell_name(vector<string> v_str);
+    bool is_expr(vector<string> v_str);
+    bool is_func(vector<string> v_str);
 
 public:
     Excel(WINDOW* _win, int max_row, int max_col, ExcelList* excelList);
