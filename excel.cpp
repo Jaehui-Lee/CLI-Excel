@@ -21,9 +21,11 @@ bool Excel::is_number(string str)
         return false;
     else if (str.length() == 1 && !isdigit(str[0]))
         return false;
-    else if (str.length() > 1 && str[0] == '0')
+    else if (str.length() > 1 && !( (str[0] >= '1' && str[0] <= '9') || str[0] == '-' ) )
         return false;
-    for (int i = 0; i < str.length(); i++)
+    else if (str.length() > 1 && str[0] == '-' && str[1] == '0')
+        return false;
+    for (int i = 1; i < str.length(); i++)
     {
         if (!isdigit(str[i]))
             return false;
@@ -39,7 +41,9 @@ bool Excel::is_number(vector<string> v_str)
             return false;
         else if (v_str[i].length() == 1 && !isdigit(v_str[i][0]))
             return false;
-        else if (v_str[i].length() > 1 && v_str[i][0] == '0')
+        else if (v_str[i].length() > 1 && !((v_str[i][0] >= '1' && v_str[i][0] <= '9') || v_str[i][0] == '-'))
+            return false;
+        else if (v_str[i].length() > 1 && v_str[i][0] == '-' && v_str[i][1] == '0')
             return false;
         for (int j = 1; j < v_str[i].length(); j++)
         {
@@ -112,35 +116,36 @@ bool Excel::is_cell_name(vector<string> v_str)
 
 bool Excel::is_expr(vector<string> v_str)
 {
+    set<char> op{'+', '-', '*', '/'};
     for ( int i = 0 ; i < v_str.size() ; i++ )
     {
         if ( v_str[i].find("/0") != string::npos ) // divided by 0
             return false;
-        vector<int> index_of_op{-1};
+        vector<int> index_of_op{-1}; // index of operator(+,-,*,/)
         for ( int j = 0 ; j < v_str[i].length() ; j++ )
         {
-            if ( isupper(v_str[i][j]) || isdigit(v_str[i][j]) )
+            if ( isupper(v_str[i][j]) || isdigit(v_str[i][j]) ) // all character of string must be upper character or digit or operator(+,-,*,/)
                 continue;
-            else if ( v_str[i][j] == '+' || v_str[i][j] == '-' || v_str[i][j] == '*' || v_str[i][j] == '/' )
+            else if ( op.find(v_str[i][j]) != op.end() )
             {
-                if ( j == 0 || j == v_str[i].length()-1 || (v_str[i][j+1] == '+' || v_str[i][j+1] == '-' || v_str[i][j+1] == '*' || v_str[i][j+1] == '/') )
+                if ( j == 0 || j == v_str[i].length()-1 || (op.find(v_str[i][j+1]) != op.end()) ) // oerators cannot be placed at the beginning or at the end
                     return false;
                 index_of_op.push_back(j);
             }
             else
                 return false;
         }
-        if ( index_of_op.size() == 1 )
+        if ( index_of_op.size() == 1 ) // no operator
         {
             if (!(is_cell_name(v_str[i]) || is_number(v_str[i])))
                 return false;
         }
-        else
+        else // at least 1 operator
         {
             index_of_op.push_back(v_str[i].length());
             for (int j = 0; j < index_of_op.size() - 1; j++)
             {
-                string check = v_str[i].substr(index_of_op[j] + 1, index_of_op[j + 1] - index_of_op[j] - 1);
+                string check = v_str[i].substr(index_of_op[j] + 1, index_of_op[j + 1] - index_of_op[j] - 1); // All strings except operators must be cell names or literal numbers
                 if (!(is_cell_name(check) || is_number(check)))
                     return false;
             }
@@ -151,9 +156,74 @@ bool Excel::is_expr(vector<string> v_str)
 
 bool Excel::is_func(vector<string> v_str)
 {
+    set<string> func{"SUM", "AVG", "PRODUCT", "COUNT", "MAX", "MIN", "RAND", "RANDBETWEEN"};
     for ( int i = 0 ; i < v_str.size() ; i++ )
     {
-        // TODO
+        if ( v_str[i].find('(') == string::npos )
+            return false;
+        if ( (v_str[i].find(')') == string::npos) || (v_str[i].find(')') != v_str[i].length()-1) )
+            return false;
+        int index_of_brk = v_str[i].find('('); // index of bracket '('
+        string command = v_str[i].substr(0, index_of_brk);
+        transform(command.begin(), command.end(), command.begin(), ::toupper);
+        if ( func.find(command) == func.end() )
+            return false;
+        if ( command == "SUM" || command == "AVG" || command == "PRODUCT" || command == "MAX" || command == "MIN" )
+        {
+            string str = v_str[i].substr(index_of_brk+1);
+            str.pop_back();
+            vector<string> v_to;
+            istringstream ss(str);
+            string start, end;
+            getline(ss, start, ':');
+            getline(ss, end);
+
+            if (!is_cell_name(start))
+                return false;
+            if (!is_cell_name(end))
+                return false;
+
+            for (char p = start[0]; p <= end[0]; p++)
+            {
+                for (int q = stoi(start.substr(1)); q <= stoi(end.substr(1)); q++)
+                {
+                    string cell_name(1, p);
+                    cell_name += to_string(q);
+                    v_to.push_back(cell_name);
+                }
+            }
+            if ( !is_cell_name(v_to) )
+                return false;
+        }
+        else if ( command == "COUNT")
+        {
+            string str = v_str[i].substr(index_of_brk+1);
+            str.pop_back();
+            if ( !is_number(str) )
+                return false;
+        }
+        else if ( command == "RAND" )
+        {
+            string str = v_str[i].substr(index_of_brk+1);
+            str.pop_back();
+            if ( !str.empty() )
+                return false;
+        }
+        else if ( command == "RANDBETWEEN" )
+        {
+            string str = v_str[i].substr(index_of_brk+1);
+            str.pop_back();
+
+            istringstream ss(str);
+            string start, end;
+            getline(ss, start, ',');
+            getline(ss, end);
+
+            if ( !is_number(start) )
+                return false;
+            if ( !is_number(end) )
+                return false;
+        }
     }
     return true;
 }
@@ -196,7 +266,7 @@ int Excel::parse_user_input(string s)
     {
         int row, col;
         char str[10];
-        getmaxyx(stdscr, row, col);
+        getmaxyx(win, row, col);
         while (true)
         {
             wattron(win, COLOR_PAIR(1));
@@ -207,7 +277,8 @@ int Excel::parse_user_input(string s)
             wgetstr(win, str);
             if (!strcmp(str, "Y") || !strcmp(str, "y"))
             {
-                mvwprintw(win, row - 1, 0, "                                "); // remove "Do you want to save file?(Y/N)" on screen
+                string blank = string(30+string(str).length(), ' ');
+                mvwprintw(win, row - 1, 0, blank.c_str()); // remove "Do you want to save file?(Y/N)" on screen
                 wattron(win, COLOR_PAIR(1));
                 mvwprintw(win, row - 1, 0, "Enter the name of file :");
                 wattroff(win, COLOR_PAIR(1));
@@ -412,11 +483,12 @@ int Excel::command_line()
         }
         else if (ret == ERROR)
         {
-            mvwprintw(win, row - 1, 0, "                                ");
-            wattron(stdscr, COLOR_PAIR(1));
-            mvwprintw(stdscr, row - 1, 0, "        Wrong command!        ");
-            wattroff(stdscr, COLOR_PAIR(1));
-            wrefresh(stdscr);
+            string blank = string(s.length()+5, ' ');
+            mvwprintw(win, row - 1, 0, blank.c_str());
+            wattron(win, COLOR_PAIR(1));
+            mvwprintw(win, row - 1, 0, "        Wrong command!        ");
+            wattroff(win, COLOR_PAIR(1));
+            wrefresh(win);
             sleep(2);
             print_table();
         }

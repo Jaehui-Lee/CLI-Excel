@@ -133,4 +133,4 @@ $ ./main
         - We implemented so that Excel functions can be used until the user selects exit in InitialPage
     - Error Handling
         - Add Error checking about (string, number, date) cell name, value(number, date), ... in command (2021/11/30)
-        - Add Error checking about formula of expression cell (2021/12/01)
+        - Add Error checking about formula of expression cell, function cell (2021/12/01)
