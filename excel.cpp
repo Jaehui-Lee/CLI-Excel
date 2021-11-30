@@ -114,7 +114,37 @@ bool Excel::is_expr(vector<string> v_str)
 {
     for ( int i = 0 ; i < v_str.size() ; i++ )
     {
-        // TODO
+        if ( v_str[i].find("/0") != string::npos ) // divided by 0
+            return false;
+        vector<int> index_of_op{-1};
+        for ( int j = 0 ; j < v_str[i].length() ; j++ )
+        {
+            if ( isupper(v_str[i][j]) || isdigit(v_str[i][j]) )
+                continue;
+            else if ( v_str[i][j] == '+' || v_str[i][j] == '-' || v_str[i][j] == '*' || v_str[i][j] == '/' )
+            {
+                if ( j == 0 || j == v_str[i].length()-1 || (v_str[i][j+1] == '+' || v_str[i][j+1] == '-' || v_str[i][j+1] == '*' || v_str[i][j+1] == '/') )
+                    return false;
+                index_of_op.push_back(j);
+            }
+            else
+                return false;
+        }
+        if ( index_of_op.size() == 1 )
+        {
+            if (!(is_cell_name(v_str[i]) || is_number(v_str[i])))
+                return false;
+        }
+        else
+        {
+            index_of_op.push_back(v_str[i].length());
+            for (int j = 0; j < index_of_op.size() - 1; j++)
+            {
+                string check = v_str[i].substr(index_of_op[j] + 1, index_of_op[j + 1] - index_of_op[j] - 1);
+                if (!(is_cell_name(check) || is_number(check)))
+                    return false;
+            }
+        }
     }
     return true;
 }
@@ -289,6 +319,7 @@ int Excel::parse_user_input(string s)
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new StringCell(v_rest[i], row, col, current_table), row, col);
         }
+        return NORMAL;
     }
     else if (command == "setn") // set number
     {
