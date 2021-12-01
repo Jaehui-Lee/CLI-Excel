@@ -36,6 +36,8 @@ class Excel
     Table *current_table;
     WINDOW *win;
     ExcelList *excelList;
+    int start_row = 0;
+    int start_col = 0;
 
     bool is_number(string str);
     bool is_number(vector<string> v_str);

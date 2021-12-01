@@ -109,6 +109,7 @@ $ ./main
     - Table
         - We changed the return type from string to void in the print_table() function and changed it to print to a specific WINDOW* using the ncurses function (2021/11/17)
         - Each time the print_table() function is called, the parser are called only once (reducing the amount of unnecessary computation) using RTTI pattern (2021/11/19)
+        - If you move the table with the arrow keys, the moved table is displayed (2021/12/01)
     - InitialPage (2021/11/10)
         - When the program starts, it displays the following user menu
             - Create New Excel
@@ -121,6 +122,7 @@ $ ./main
             - When input is received in the format of "SAVE filename", the to_txt() function is called in the order of ExcelList→Excel→Table to save the data to the file
         - Find (2021/11/20)
             - You can find what you want
+            - Fixed Find command mechanism related to moving table with arrow keys (2021/12/01)
         - Set value based on range (2021/11/26)
             - Ex : setn A1:A5 1 2 3 4 5
         - In order to recognize the arrow keys, the method has been changed from receiving input line by line to receiving input one character at a time (2021/12/01)

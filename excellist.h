@@ -6,8 +6,8 @@
 #include <list>
 #include <sstream>
 
-#define MAX_ROW_SIZE 18
-#define MAX_COL_SIZE 20
+#define MAX_ROW_SIZE 30
+#define MAX_COL_SIZE 26
 
 using namespace std;
 

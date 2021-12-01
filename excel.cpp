@@ -6,7 +6,7 @@
 
 Excel::Excel(WINDOW *_win, int max_row, int max_col, ExcelList *excelList) : win(_win), excelList(excelList)
 {
-    current_table = new Table(win, max_row, max_col);
+    current_table = new Table(win, max_row, max_col, "", vector<int>());
 }
 
 Excel::~Excel()
@@ -230,6 +230,34 @@ bool Excel::is_func(vector<string> v_str)
 
 int Excel::parse_user_input(string s)
 {
+    int row_size, col_size;
+    getmaxyx(win, row_size, col_size);
+
+    if ( s == to_string(KEY_UP) )
+    {
+        if ( start_row > 0 )
+            start_row--;
+        return NORMAL;
+    }
+    else if ( s == to_string(KEY_DOWN) )
+    {
+        if ( start_row < current_table->get_row_size()-(row_size-5) )
+            start_row++;
+        return NORMAL;
+    }
+    else if ( s == to_string(KEY_LEFT) )
+    {
+        if ( start_col > 0 )
+            start_col--;
+        return NORMAL;
+    }
+    else if ( s == to_string(KEY_RIGHT) )
+    {
+        if ( start_col < current_table->get_col_size()-col_size )
+            start_col++;
+        return NORMAL;
+    }
+
     string command = "";
     string to = "";
     string rest = "";
@@ -264,23 +292,24 @@ int Excel::parse_user_input(string s)
     }
     else if (command == "exit")
     {
-        int row, col;
+        int exit_row, exit_col;
+        getmaxyx(win, exit_row, exit_col);
         char str[10];
-        getmaxyx(win, row, col);
+        
         while (true)
         {
             wattron(win, COLOR_PAIR(1));
-            mvwprintw(win, row - 1, 0, "Do you want to save file?(Y/N)");
+            mvwprintw(win, exit_row - 1, 0, "Do you want to save file?(Y/N)");
             wattroff(win, COLOR_PAIR(1));
             wprintw(win, " ");
             wrefresh(win);
             wgetstr(win, str);
             if (!strcmp(str, "Y") || !strcmp(str, "y"))
             {
-                string blank = string(col-10, ' ');
-                mvwprintw(win, row - 1, 0, blank.c_str()); // remove "Do you want to save file?(Y/N)" on screen
+                string blank = string(exit_col-10, ' ');
+                mvwprintw(win, exit_row - 1, 0, blank.c_str()); // remove "Do you want to save file?(Y/N)" on screen
                 wattron(win, COLOR_PAIR(1));
-                mvwprintw(win, row - 1, 0, "Enter the name of file :");
+                mvwprintw(win, exit_row - 1, 0, "Enter the name of file :");
                 wattroff(win, COLOR_PAIR(1));
                 wprintw(win, " ");
                 wrefresh(win);
@@ -453,7 +482,7 @@ void Excel::print_table(string look_for = "")
     string str = to_string(excelList->get_current_page()) + "/" + to_string(excelList->get_excel_count());
     getmaxyx(win, row, col);
     wclear(win);
-    current_table->print_table(look_for);
+    current_table->print_table(start_row, start_col, look_for);
     mvwprintw(win, row - 1, col - 10, str.c_str());
     mvwprintw(win, row - 1, 0, ">> ");
     wrefresh(win);
@@ -535,7 +564,7 @@ int Excel::command_line()
             mvwprintw(win, row - 1, 0, "        Wrong command!        ");
             wattroff(win, COLOR_PAIR(1));
             wrefresh(win);
-            sleep(2);
+            sleep(1);
             print_table();
         }
         else
