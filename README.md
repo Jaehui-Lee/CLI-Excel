@@ -123,6 +123,7 @@ $ ./main
             - You can find what you want
         - Set value based on range (2021/11/26)
             - Ex : setn A1:A5 1 2 3 4 5
+        - In order to recognize the arrow keys, the method has been changed from receiving input line by line to receiving input one character at a time (2021/12/01)
     - ExcelList
         - Sheet (2021/11/11)
             - You can create, move, and delete sheets with the next, prev, and delete commands
