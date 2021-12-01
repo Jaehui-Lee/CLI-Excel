@@ -277,7 +277,7 @@ int Excel::parse_user_input(string s)
             wgetstr(win, str);
             if (!strcmp(str, "Y") || !strcmp(str, "y"))
             {
-                string blank = string(30+string(str).length(), ' ');
+                string blank = string(col-10, ' ');
                 mvwprintw(win, row - 1, 0, blank.c_str()); // remove "Do you want to save file?(Y/N)" on screen
                 wattron(win, COLOR_PAIR(1));
                 mvwprintw(win, row - 1, 0, "Enter the name of file :");
@@ -351,11 +351,10 @@ int Excel::parse_user_input(string s)
     if (command == "save") // save to txt
     {
         // file name can be only nothing except of .txt ( not .csv, .hwp, .xlsx, ...)
-        if (to.find('.') != string::npos)
-        {
-            if (to.substr(to.find('.')) != ".txt")
+        if ( to.find('.') == string::npos )
+            return ERROR;
+        if (to.substr(to.find('.')) != ".txt")
                 return ERROR;
-        }
         excelList->to_txt(to);
         return SAVE;
     }
@@ -460,30 +459,77 @@ void Excel::print_table(string look_for = "")
     wrefresh(win);
 }
 
+string Excel::input_command()
+{
+    string s;
+    int ch;
+    int row, col;
+    while(true)
+    {
+        ch = wgetch(win);
+        if ( ch == '\n' )
+            break;
+        if ( ch == KEY_BACKSPACE )
+        {
+            getyx(win, row, col);
+            if ( col == 2 )
+            {
+                wmove(win, row, col+1);
+            }
+            else
+            {
+                wprintw(win, " ");
+                wmove(win, row, col);
+                wrefresh(win);
+            }
+            if ( s.empty() )
+                continue;
+            s.pop_back();
+        }
+        else
+        {
+            s += ch;
+            if ( ch == KEY_UP || ch == KEY_DOWN || ch == KEY_LEFT || ch == KEY_RIGHT )
+            {
+                return to_string(ch);
+            }
+        }
+    }
+    return s;
+}
+
 int Excel::command_line()
 {
     char cstr[80]; // user's command
     int ret;       // return value(attribute) of user's command
     int row, col;
 
+    cbreak();
+    keypad(win, TRUE);
+
     getmaxyx(win, row, col);
 
     print_table(); // print table
-    wgetstr(win, cstr);
-    string s(cstr);
+
+    string s;
+
+    s = input_command();
+    
+    // wgetstr(win, cstr);
+    // string s(cstr);
 
     while ((ret = parse_user_input(s))) // analysis of user input
     {
         if (ret == NEXT || ret == PREV || ret == DELETE || ret == GOTO)
         {
-            return ret;
+            break;
         }
         else if (ret == FIND) // if user's command is "find"
         {
         }
         else if (ret == ERROR)
         {
-            string blank = string(s.length()+5, ' ');
+            string blank = string(col-10, ' ');
             mvwprintw(win, row - 1, 0, blank.c_str());
             wattron(win, COLOR_PAIR(1));
             mvwprintw(win, row - 1, 0, "        Wrong command!        ");
@@ -494,8 +540,10 @@ int Excel::command_line()
         }
         else
             print_table(); // if not, keep going
-        wgetstr(win, cstr);
-        s = cstr;
+
+        s = input_command();
+        // wgetstr(win, cstr);
+        // s = cstr;
     }
     return ret;
 }

@@ -50,6 +50,8 @@ public:
 
     ~Excel();
 
+    string input_command();
+
     int parse_user_input(string s);
     int command_line();
     void print_table(string look_for);
