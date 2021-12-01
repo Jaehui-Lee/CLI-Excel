@@ -10,6 +10,7 @@
 #include <ncurses.h>
 #include <map>
 #include <unistd.h>
+#include <vector>
 
 using namespace std;
 
