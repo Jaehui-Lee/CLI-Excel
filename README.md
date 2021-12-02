@@ -106,6 +106,7 @@ $ ./main
             - This Cell stores string data (Excel Function) such as "SUM(A1:A4)"
             - parsing function
             - Kinds : SUM, AVG, PRODUCT, COUNT, MIN, MAX, RAND, RANDBETWEEN
+        - NumberCell (Int to Double) (2021/12/02)
     - Table
         - We changed the return type from string to void in the print_table() function and changed it to print to a specific WINDOW* using the ncurses function (2021/11/17)
         - Each time the print_table() function is called, the parser are called only once (reducing the amount of unnecessary computation) using RTTI pattern (2021/11/19)

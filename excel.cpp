@@ -17,6 +17,7 @@ Excel::~Excel()
 
 bool Excel::is_number(string str)
 {
+    int count = 0; // floating point counter
     if (str.length() == 0)
         return false;
     else if (str.length() == 1 && !isdigit(str[0]))
@@ -27,6 +28,16 @@ bool Excel::is_number(string str)
         return false;
     for (int i = 1; i < str.length(); i++)
     {
+        if (str[i] == '.')
+        {
+            if ( count == 1 )
+                return false;
+            else if ( i == str.length()-1 )
+                return false;
+            else
+                count++;
+            continue;
+        }
         if (!isdigit(str[i]))
             return false;
     }
@@ -37,6 +48,7 @@ bool Excel::is_number(vector<string> v_str)
 {
     for ( int i = 0 ; i < v_str.size() ; i++ )
     {
+        int count = 0;
         if (v_str[i].length() == 0)
             return false;
         else if (v_str[i].length() == 1 && !isdigit(v_str[i][0]))
@@ -47,6 +59,16 @@ bool Excel::is_number(vector<string> v_str)
             return false;
         for (int j = 1; j < v_str[i].length(); j++)
         {
+            if ( v_str[i][j] == '.' )
+            {
+                if ( count == 1 )
+                    return false;
+                else if ( j == v_str[i].length()-1 )
+                    return false;
+                else
+                    count++;
+                continue;
+            }
             if (!isdigit(v_str[i][j]))
                 return false;
         }
@@ -429,7 +451,7 @@ int Excel::parse_user_input(string s)
         {
             col = v_to[i][0] - 'A';
             row = stoi(v_to[i].substr(1)) - 1;
-            current_table->reg_cell(new NumberCell(stoi(v_rest[i]), row, col, current_table), row, col);
+            current_table->reg_cell(new NumberCell(stod(v_rest[i]), row, col, current_table), row, col);
         }
         return NORMAL;
     }
@@ -543,9 +565,6 @@ int Excel::command_line()
     string s;
 
     s = input_command();
-    
-    // wgetstr(win, cstr);
-    // string s(cstr);
 
     while ((ret = parse_user_input(s))) // analysis of user input
     {
@@ -571,8 +590,6 @@ int Excel::command_line()
             print_table(); // if not, keep going
 
         s = input_command();
-        // wgetstr(win, cstr);
-        // s = cstr;
     }
     return ret;
 }
@@ -602,7 +619,7 @@ void Excel::from_txt(ifstream &readFile)
         }
         else if (type == "NUMBER") // set number
         {
-            current_table->reg_cell(new NumberCell(stoi(value), row, col, current_table), row, col);
+            current_table->reg_cell(new NumberCell(stod(value), row, col, current_table), row, col);
         }
         else if (type == "DATE") // set date
         {

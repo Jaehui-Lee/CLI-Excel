@@ -30,7 +30,7 @@ protected:
 
 public:
     virtual string stringify() = 0;
-    virtual int to_numeric() = 0;
+    virtual double to_numeric() = 0;
 
     Cell(int x, int y, Table *table);
 };
@@ -45,7 +45,7 @@ class StringCell : public Cell
 
 public:
     string stringify();
-    int to_numeric();
+    double to_numeric();
 
     StringCell(string data, int x, int y, Table *t);
 };
@@ -56,13 +56,13 @@ public:
 
 class NumberCell : public Cell
 {
-    int data;
+    double data;
 
 public:
     string stringify();
-    int to_numeric();
+    double to_numeric();
 
-    NumberCell(int data, int x, int y, Table *t);
+    NumberCell(double data, int x, int y, Table *t);
 };
 
 /*------------------
@@ -75,7 +75,7 @@ class DateCell : public Cell
 
 public:
     string stringify();
-    int to_numeric();
+    double to_numeric();
 
     DateCell(string s, int x, int y, Table *t);
 };
@@ -102,7 +102,7 @@ public:
     string get_data();
 
     string stringify();
-    int to_numeric();
+    double to_numeric();
 };
 
 
@@ -113,7 +113,7 @@ public:
 class FuncCell : public Cell
 {
     string data;
-    int value; // for RAND, RANDBETWEEN
+    double value; // for RAND, RANDBETWEEN
     bool valid; // for RAND, RANDBETWEEN
 
     vector<string> func_vec;
@@ -129,5 +129,5 @@ public:
     string get_data();
 
     string stringify();
-    int to_numeric();
+    double to_numeric();
 };

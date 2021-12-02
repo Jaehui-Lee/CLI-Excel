@@ -13,17 +13,17 @@ Cell::Cell(int x, int y, Table *table) : x(x), y(y), table(table) {}
 StringCell::StringCell(string data, int x, int y, Table *t)
     : data(data), Cell(x, y, t) {}
 string StringCell::stringify() { return data; }
-int StringCell::to_numeric() { return 0; }
+double StringCell::to_numeric() { return 0; }
 
 /*------------------
      NumberCell
 -------------------*/
 
-NumberCell::NumberCell(int data, int x, int y, Table *t)
+NumberCell::NumberCell(double data, int x, int y, Table *t)
     : data(data), Cell(x, y, t) {}
 
 string NumberCell::stringify() { return to_string(data); }
-int NumberCell::to_numeric() { return data; }
+double NumberCell::to_numeric() { return data; }
 
 /*------------------
       DateCell
@@ -41,9 +41,9 @@ string DateCell::stringify()
     return string(buf);
 }
 
-int DateCell::to_numeric()
+double DateCell::to_numeric()
 {
-    return static_cast<int>(data);
+    return 0;
 }
 
 DateCell::DateCell(string s, int x, int y, Table *t) : Cell(x, y, t)
@@ -82,7 +82,7 @@ string ExprCell::stringify()
     return to_string(to_numeric());
 }
 
-int ExprCell::to_numeric()
+double ExprCell::to_numeric()
 {
     double result = 0;
     stack<int> st;
@@ -99,7 +99,7 @@ int ExprCell::to_numeric()
         // if Number
         else if (isdigit(s[0]))
         {
-            st.push(stoi(s));
+            st.push(stod(s));
         }
         else
         {
@@ -162,7 +162,7 @@ void ExprCell::parse_expression()
         if (isalpha(data_exp[i]))
         {
             int count = 0;
-            while(isalnum(data_exp[i+count]))
+            while(isalnum(data_exp[i+count]) || data_exp[i+count] == '.')
                 count++;
             exp_vec.push_back(data_exp.substr(i, count));
             i += count-1;
@@ -170,7 +170,7 @@ void ExprCell::parse_expression()
         else if (isdigit(data_exp[i]))
         {
             int count = 0;
-            while(isdigit(data_exp[i+count]))
+            while(isdigit(data_exp[i+count]) || data_exp[i+count] == '.')
                 count++;
             exp_vec.push_back(data_exp.substr(i, count));
             i += count-1;
@@ -219,7 +219,7 @@ string FuncCell::stringify()
     return to_string(to_numeric());
 }
 
-int FuncCell::to_numeric()
+double FuncCell::to_numeric()
 {
     return value;
 }
@@ -286,7 +286,7 @@ void FuncCell::calculate()
 {
     if (func_vec[0] == "SUM" || func_vec[0] == "AVG")
     {
-        value = 0;
+        value = 0.0;
         for (int i = 1; i < func_vec.size(); i++)
         {
             value += table->to_numeric(func_vec[i]);
@@ -310,7 +310,7 @@ void FuncCell::calculate()
         {
             for (int j = 0; j < MAX_COL_SIZE; j++)
             {
-                int f_value = stoi(func_vec[1]); // value to find
+                double f_value = stod(func_vec[1]); // value to find
                 // RTTI
                 if (!table->is_empty(i, j) && table->to_numeric(i, j) == f_value)
                 {
@@ -325,7 +325,7 @@ void FuncCell::calculate()
 
         for (int i = 2; i < func_vec.size(); i++)
         {
-            int temp = table->to_numeric(func_vec[i]);
+            double temp = table->to_numeric(func_vec[i]);
             if (func_vec[0] == "MAX")
                 value = (value < temp) ? temp : value;
             else if (func_vec[0] == "MIN")
@@ -339,12 +339,12 @@ void FuncCell::calculate()
             random_device rd;
             mt19937_64 gen(rd());
 
-            uniform_int_distribution<int> dis(0, 100);
+            uniform_real_distribution<double> dis(0.0, 100.0);
             if (func_vec[0] == "RANDBETWEEN")
             {
-                int start = stoi(func_vec[1]);
-                int end = stoi(func_vec[2]);
-                dis = uniform_int_distribution<int>(start, end);
+                double start = stod(func_vec[1]);
+                double end = stod(func_vec[2]);
+                dis = uniform_real_distribution<double>(start, end);
             }
 
             value = dis(gen);

@@ -45,10 +45,10 @@ public:
 
     // Returns the integer value of the cell
     // s : cell name (such as A3, B6)
-    int to_numeric(const string &s);
+    double to_numeric(const string &s);
 
     // Call the cell by row and column number.
-    int to_numeric(int row, int col);
+    double to_numeric(int row, int col);
 
     // Returns the string of the cell
     string stringify(const string &s);

@@ -49,7 +49,7 @@ void Table::reg_cell(Cell *c, int row, int col)
     number_of_cell++;
 }
 
-int Table::to_numeric(const string &s)
+double Table::to_numeric(const string &s)
 {
     // Cell name
     int col = s[0] - 'A';
@@ -64,7 +64,7 @@ int Table::to_numeric(const string &s)
     }
     return 0;
 }
-int Table::to_numeric(int row, int col)
+double Table::to_numeric(int row, int col)
 {
     if (row < max_row_size && col < max_col_size && data_table[row][col])
     {
