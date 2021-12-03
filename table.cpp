@@ -7,46 +7,16 @@
 Table::Table(WINDOW *win, int max_row_size, int max_col_size, string table_str, vector<int> cross_pos)
     : win(win), max_row_size(max_row_size), max_col_size(max_col_size), number_of_cell(0), table_str(table_str), cross_pos(cross_pos)
 {
-    data_table = new Cell **[max_row_size];
-    for (int i = 0; i < max_row_size; i++)
-    {
-        data_table[i] = new Cell *[max_col_size];
-        for (int j = 0; j < max_col_size; j++)
-        {
-            data_table[i][j] = NULL;
-        }
-    }
+    data_table = vector<vector<list<Cell *>>>(MAX_ROW_SIZE, vector<list<Cell *>>(MAX_COL_SIZE, list<Cell *>(0)));
 }
 
-Table::~Table()
-{
-    for (int i = 0; i < max_row_size; i++)
-    {
-        for (int j = 0; j < max_col_size; j++)
-        {
-            if (data_table[i][j])
-                delete data_table[i][j];
-        }
-    }
-    for (int i = 0; i < max_row_size; i++)
-    {
-        delete[] data_table[i];
-    }
-    delete[] data_table;
-}
+Table::~Table() {}
 
 void Table::reg_cell(Cell *c, int row, int col)
 {
-    if (!(row < max_row_size && col < max_col_size))
-        return;
-
-    if (data_table[row][col])
-    {
-        number_of_cell--;
-        delete data_table[row][col];
-    }
-    data_table[row][col] = c;
-    number_of_cell++;
+    if ( data_table[row][col].empty() )
+        number_of_cell++;
+    data_table[row][col].push_back(c);
 }
 
 double Table::to_numeric(const string &s)
@@ -57,18 +27,18 @@ double Table::to_numeric(const string &s)
 
     if (row < max_row_size && col < max_col_size)
     {
-        if (data_table[row][col])
+        if (!data_table[row][col].empty())
         {
-            return data_table[row][col]->to_numeric();
+            return data_table[row][col].back()->to_numeric();
         }
     }
     return 0;
 }
 double Table::to_numeric(int row, int col)
 {
-    if (row < max_row_size && col < max_col_size && data_table[row][col])
+    if (row < max_row_size && col < max_col_size && !data_table[row][col].empty())
     {
-        return data_table[row][col]->to_numeric();
+        return data_table[row][col].back()->to_numeric();
     }
     return 0;
 }
@@ -80,18 +50,18 @@ string Table::stringify(const string &s)
 
     if (row < max_row_size && col < max_col_size)
     {
-        if (data_table[row][col])
+        if (!data_table[row][col].empty())
         {
-            return data_table[row][col]->stringify();
+            return data_table[row][col].back()->stringify();
         }
     }
     return 0;
 }
 string Table::stringify(int row, int col)
 {
-    if (row < max_row_size && col < max_col_size && data_table[row][col])
+    if (row < max_row_size && col < max_col_size && !data_table[row][col].empty())
     {
-        return data_table[row][col]->stringify();
+        return data_table[row][col].back()->stringify();
     }
     return "";
 }
@@ -180,15 +150,15 @@ void Table::make_table()
     {
         for (int j = 0; j < max_row_size; j++)
         {
-            if (data_table[j][i])
+            if (!data_table[j][i].empty())
             {
                 if (get_cell_type(j, i).name() == typeid(ExprCell).name())
                 {
-                    dynamic_cast<ExprCell *>(data_table[j][i])->parse_expression();
+                    dynamic_cast<ExprCell *>(data_table[j][i].back())->parse_expression();
                 }
                 else if (get_cell_type(j, i).name() == typeid(FuncCell).name())
                 {
-                    dynamic_cast<FuncCell *>(data_table[j][i])->parse_function();
+                    dynamic_cast<FuncCell *>(data_table[j][i].back())->parse_function();
                 }
             }
         }
@@ -199,10 +169,10 @@ void Table::make_table()
         unsigned int max_wide = 2;
         for (int j = 0; j < max_row_size; j++)
         {
-            if (data_table[j][i] &&
-                data_table[j][i]->stringify().length() > max_wide)
+            if (!data_table[j][i].empty() &&
+                data_table[j][i].back()->stringify().length() > max_wide)
             {
-                max_wide = data_table[j][i]->stringify().length();
+                max_wide = data_table[j][i].back()->stringify().length();
             }
         }
         col_max_wide[i] = max_wide;
@@ -241,8 +211,8 @@ void Table::make_table()
             int max_len = max(2, col_max_wide[j]);
 
             string s = "";
-            if (data_table[i][j]) {
-            s = data_table[i][j]->stringify();
+            if (!data_table[i][j].empty()) {
+            s = data_table[i][j].back()->stringify();
             }
             table_str += " | " + s;
             table_str += repeat_char(max_len - s.length(), ' ');
@@ -254,7 +224,8 @@ void Table::make_table()
     table_str += " |\n";
 }
 
-string Table::repeat_char(int n, char c) {
+string Table::repeat_char(int n, char c)
+{
   string s = "";
   for (int i = 0; i < n; i++) s.push_back(c);
 
@@ -283,14 +254,14 @@ string Table::col_num_to_str(int n)
 
 bool Table::is_empty(int row, int col)
 {
-    if (!data_table[row][col])
+    if (!data_table[row][col].empty())
         return true;
     return false;
 }
 
 const type_info &Table::get_cell_type(int row, int col)
 {
-    return typeid(*data_table[row][col]);
+    return typeid(*(data_table[row][col].back()));
 }
 
 void Table::to_txt(ofstream& writeFile)
@@ -307,20 +278,20 @@ void Table::to_txt(ofstream& writeFile)
     {
         for (int j = 0; j < max_row_size; j++)
         {
-            if (data_table[j][i])
+            if (!data_table[j][i].empty())
             {
                 writeFile << col_num_to_str(i) << j + 1 << " " << m[get_cell_type(j, i).name()] << " ";
                 if (get_cell_type(j, i).name() == typeid(ExprCell).name())
                 {
-                    writeFile << dynamic_cast<ExprCell *>(data_table[j][i])->get_data() << endl;
+                    writeFile << dynamic_cast<ExprCell *>(data_table[j][i].back())->get_data() << endl;
                 }
                 else if (get_cell_type(j, i).name() == typeid(FuncCell).name())
                 {
-                    writeFile << dynamic_cast<FuncCell *>(data_table[j][i])->get_data() << endl;
+                    writeFile << dynamic_cast<FuncCell *>(data_table[j][i].back())->get_data() << endl;
                 }
                 else
                 {
-                    writeFile << data_table[j][i]->stringify() << endl;
+                    writeFile << data_table[j][i].back()->stringify() << endl;
                 }
             }
         }

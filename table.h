@@ -11,6 +11,7 @@
 #include <map>
 #include <unistd.h>
 #include <vector>
+#include <list>
 
 using namespace std;
 
@@ -33,7 +34,7 @@ protected:
     vector<int> cross_pos;
 
     // A two-dimensional array that stores Cell*
-    Cell ***data_table;
+    vector<vector<list<Cell *>>> data_table;
 
 public:
     Table(WINDOW* win, int max_row_size, int max_col_size, string table_str, vector<int> cross_pos);

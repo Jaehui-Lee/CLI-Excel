@@ -97,13 +97,28 @@ string ExprCell::get_data()
 
 string ExprCell::stringify()
 {
-    return to_string(to_numeric());
+    string str = to_string(to_numeric());
+    for ( int i = str.length()-1 ; i > 0 ; i-- )
+    {
+        if ( str[i] == '0' )
+        {
+            str.pop_back();
+        }
+        else if  ( str[i] == '.' )
+        {
+            str.pop_back();
+            break;
+        }
+        else
+            break;
+    }
+    return str;
 }
 
 double ExprCell::to_numeric()
 {
     double result = 0;
-    stack<int> st;
+    stack<double> st;
 
     for (int i = 0; i < exp_vec.size(); i++)
     {
@@ -234,7 +249,22 @@ string FuncCell::get_data()
 
 string FuncCell::stringify()
 {
-    return to_string(to_numeric());
+    string str = to_string(to_numeric());
+    for ( int i = str.length()-1 ; i > 0 ; i-- )
+    {
+        if ( str[i] == '0' )
+        {
+            str.pop_back();
+        }
+        else if  ( str[i] == '.' )
+        {
+            str.pop_back();
+            break;
+        }
+        else
+            break;
+    }
+    return str;
 }
 
 double FuncCell::to_numeric()
