@@ -22,7 +22,25 @@ double StringCell::to_numeric() { return 0; }
 NumberCell::NumberCell(double data, int x, int y, Table *t)
     : data(data), Cell(x, y, t) {}
 
-string NumberCell::stringify() { return to_string(data); }
+string NumberCell::stringify()
+{
+    string str = to_string(data);
+    for ( int i = str.length()-1 ; i > 0 ; i-- )
+    {
+        if ( str[i] == '0' )
+        {
+            str.pop_back();
+        }
+        else if  ( str[i] == '.' )
+        {
+            str.pop_back();
+            break;
+        }
+        else
+            break;
+    }
+    return str;
+}
 double NumberCell::to_numeric() { return data; }
 
 /*------------------
