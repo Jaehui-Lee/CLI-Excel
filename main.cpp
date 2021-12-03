@@ -23,13 +23,19 @@ int main()
     InitialPage ip(stdscr); // when program starts, show initial page
     int choice = 0;         // user's choice on initial page
 
-    ExcelList* excelList;
+    ExcelList* excelList = nullptr;
 
     while ((choice = ip.init_screen()) != -1) // if user's choice is 'Exit', go out
     {
         if (choice == 1) // Create New Excel
         {
-            excelList = new ExcelList();
+            char f_name[80];
+            int row, col;
+            getmaxyx(stdscr, row, col);
+            mvwprintw(stdscr, row - 1, 0, ">> ");
+            wgetstr(stdscr, f_name);
+            string to(f_name);
+            excelList = new ExcelList(to);
             while (true)
             {
                 Excel *m = excelList->get_current_excel();
@@ -40,13 +46,13 @@ int main()
         }
         else if (choice == 2) // Open Excel
         {
-            excelList = new ExcelList();
             char f_name[80];
             int row, col;
             getmaxyx(stdscr, row, col);
             mvwprintw(stdscr, row - 1, 0, ">> ");
             wgetstr(stdscr, f_name);
             string from(f_name);
+            excelList = new ExcelList(from);
             if (excelList->from_txt(from))
             {
                 while (true)

@@ -10,13 +10,13 @@ initialpage.o: initialpage.h initialpage.cpp
 cell.o: cell.h cell.cpp
 	g++ -c -o cell.o cell.cpp
 
-table.o: cell.o table.h table.cpp
+table.o: table.cpp
 	g++ -c -o table.o table.cpp
 
-excel.o: cell.o table.o excel.h excel.cpp
+excel.o: excel.h excel.cpp
 	g++ -c -o excel.o excel.cpp
 
-excellist.o: cell.o table.o excel.o excellist.h excellist.cpp
+excellist.o: excellist.h excellist.cpp
 	g++ -c -o excellist.o excellist.cpp
 
 clean:

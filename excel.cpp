@@ -328,22 +328,7 @@ int Excel::parse_user_input(string s)
             wgetstr(win, str);
             if (!strcmp(str, "Y") || !strcmp(str, "y"))
             {
-                string blank = string(exit_col-10, ' ');
-                mvwprintw(win, exit_row - 1, 0, blank.c_str()); // remove "Do you want to save file?(Y/N)" on screen
-                wattron(win, COLOR_PAIR(1));
-                mvwprintw(win, exit_row - 1, 0, "Enter the name of file :");
-                wattroff(win, COLOR_PAIR(1));
-                wprintw(win, " ");
-                wrefresh(win);
-                wgetstr(win, str);
-                to = str;
-                // file name can be only nothing except of .txt ( not .csv, .hwp, .xlsx, ...)
-                if (to.find('.') != string::npos)
-                {
-                    if (to.substr(to.find('.')) != ".txt")
-                        return ERROR;
-                }
-                excelList->to_txt(to);
+                excelList->to_txt();
                 break;
             }
             else if (!strcmp(str, "N") || !strcmp(str, "n"))
@@ -401,12 +386,10 @@ int Excel::parse_user_input(string s)
 
     if (command == "save") // save to txt
     {
-        // file name can be only nothing except of .txt ( not .csv, .hwp, .xlsx, ...)
-        if ( to.find('.') == string::npos )
-            return ERROR;
-        if (to.substr(to.find('.')) != ".txt")
-                return ERROR;
-        excelList->to_txt(to);
+        if ( to == "" )
+            excelList->to_txt();
+        else
+            excelList->to_txt(to);
         return SAVE;
     }
     else if (command == "find") // find cell

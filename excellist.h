@@ -2,6 +2,7 @@
 
 #include "excel.h"
 
+#include <string>
 #include <iostream>
 #include <list>
 #include <sstream>
@@ -19,9 +20,10 @@ private:
     list<Excel *> excelList;
     int excel_count;   // from 1
     int current_excel; // from 1
+    string f_name;
 
 public:
-    ExcelList();
+    ExcelList(string f_name);
 
     Excel *get_current_excel();
     int get_current_page();
@@ -32,6 +34,6 @@ public:
     void delete_window();
     void move_to_window(string to);
 
-    void to_txt(string to);
+    void to_txt(string to = "");
     bool from_txt(string from);
 };

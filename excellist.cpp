@@ -1,6 +1,6 @@
 #include "excellist.h"
 
-ExcelList::ExcelList() : excel_count(1), current_excel(1)
+ExcelList::ExcelList(string f_name) : excel_count(1), current_excel(1), f_name(f_name)
 {
     int row, col;
     getmaxyx(stdscr, row, col);
@@ -76,6 +76,8 @@ void ExcelList::delete_window()
 
 void ExcelList::to_txt(string to)
 {
+    if ( to == "" )
+        to = f_name;
     ofstream writeFile(to.data());
     if (writeFile.is_open())
     {
