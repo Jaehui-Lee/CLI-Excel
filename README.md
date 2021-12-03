@@ -117,9 +117,11 @@ $ ./main
             - Create New Excel
             - Open Excel (2021/11/23) (2021/12/03)
                 - If you enter a file name, an Excel list in which data is stored is created
-                - We changed the way to open by entering a file name so that you can select and open the desired file through File Explorer.
+                - We changed the way to open by entering a file name so that you can select and open the desired file through File Explorer
             - Manual (Not yet)
             - Exit
+    - FileManager (2021/12/03)
+        - We got directory data using popen(), stat(), etc., and visualized the directory structure
     - Excel
         - Save (2021/11/19)
             - When input is received in the format of "SAVE filename" or "SAVE", the to_txt() function is called in the order of ExcelList→Excel→Table to save the data to the file
