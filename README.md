@@ -111,16 +111,18 @@ $ ./main
         - We changed the return type from string to void in the print_table() function and changed it to print to a specific WINDOW* using the ncurses function (2021/11/17)
         - Each time the print_table() function is called, the parser are called only once (reducing the amount of unnecessary computation) using RTTI pattern (2021/11/19)
         - If you move the table with the arrow keys, the moved table is displayed (2021/12/01)
+        - The table has been changed to a two-dimensional array with a cell list to implement the Undo function (2021/12/03)
     - InitialPage (2021/11/10)
         - When the program starts, it displays the following user menu
             - Create New Excel
-            - Open Excel (2021/11/23)
+            - Open Excel (2021/11/23) (2021/12/03)
                 - If you enter a file name, an Excel list in which data is stored is created
+                - We changed the way to open by entering a file name so that you can select and open the desired file through File Explorer.
             - Manual (Not yet)
             - Exit
     - Excel
         - Save (2021/11/19)
-            - When input is received in the format of "SAVE filename", the to_txt() function is called in the order of ExcelList→Excel→Table to save the data to the file
+            - When input is received in the format of "SAVE filename" or "SAVE", the to_txt() function is called in the order of ExcelList→Excel→Table to save the data to the file
         - Find (2021/11/20)
             - You can find what you want
             - Fixed Find command mechanism related to moving table with arrow keys (2021/12/01)

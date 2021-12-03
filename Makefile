@@ -1,11 +1,14 @@
-main: main.o initialpage.o cell.o table.o excel.o excellist.o
-	g++ -o main main.o initialpage.o cell.o table.o excel.o excellist.o -lncurses
+main: main.o initialpage.o filemanager.o cell.o table.o excel.o excellist.o
+	g++ -o main main.o initialpage.o filemanager.o cell.o table.o excel.o excellist.o -lncurses
 
 main.o: main.cpp
 	g++ -c -o main.o main.cpp
 
 initialpage.o: initialpage.h initialpage.cpp
 	g++ -c -o initialpage.o initialpage.cpp
+
+filemanager.o: filemanager.h filemanager.cpp
+	g++ -c -o filemanager.o filemanager.cpp
 
 cell.o: cell.h cell.cpp
 	g++ -c -o cell.o cell.cpp

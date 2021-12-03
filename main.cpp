@@ -10,6 +10,7 @@
 #include <list>
 
 #include "initialpage.h"
+#include "filemanager.h"
 #include "excellist.h"
 
 using namespace std;
@@ -21,13 +22,20 @@ int main()
     init_pair(1, COLOR_BLACK, COLOR_WHITE);
 
     InitialPage ip(stdscr); // when program starts, show initial page
-    int choice = 0;         // user's choice on initial page
+    int ip_choice = 0;         // user's choice on initial page
+
+    int row, col;
+    getmaxyx(stdscr, row, col);
+    WINDOW *fm_win = newwin(row, col, 0, 0);
+
+    FileManager fm(fm_win);
+    string fm_choice;
 
     ExcelList* excelList = nullptr;
 
-    while ((choice = ip.init_screen()) != -1) // if user's choice is 'Exit', go out
+    while ((ip_choice = ip.init_screen()) != -1) // if user's choice is 'Exit', go out
     {
-        if (choice == 1) // Create New Excel
+        if (ip_choice == 1) // Create New Excel
         {
             char f_name[80];
             int row, col;
@@ -44,16 +52,13 @@ int main()
             }
             delete excelList;
         }
-        else if (choice == 2) // Open Excel
+        else if (ip_choice == 2) // Open Excel
         {
-            char f_name[80];
-            int row, col;
-            getmaxyx(stdscr, row, col);
-            mvwprintw(stdscr, row - 1, 0, ">> ");
-            wgetstr(stdscr, f_name);
-            string from(f_name);
-            excelList = new ExcelList(from);
-            if (excelList->from_txt(from))
+            if ((fm_choice = fm.init_screen()) == "")
+                continue;
+
+            excelList = new ExcelList(fm_choice);
+            if (excelList->from_txt(fm_choice))
             {
                 while (true)
                 {
@@ -63,17 +68,17 @@ int main()
                         break;
                 }
             }
-            else
-            {
-                wattron(stdscr, COLOR_PAIR(1));
-                mvwprintw(stdscr, row - 1, 0, "File doesn't exits");
-                wattroff(stdscr, COLOR_PAIR(1));
-                wrefresh(stdscr);
-                sleep(2);
-            }
+            // else
+            // {
+            //     wattron(stdscr, COLOR_PAIR(1));
+            //     mvwprintw(stdscr, row - 1, 0, "File doesn't exits");
+            //     wattroff(stdscr, COLOR_PAIR(1));
+            //     wrefresh(stdscr);
+            //     sleep(2);
+            // }
             delete excelList;
         }
-        else if (choice == 3) // Manual
+        else if (ip_choice == 3) // Manual
         {
         }
         else // Exit
