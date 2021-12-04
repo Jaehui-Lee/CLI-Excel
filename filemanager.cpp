@@ -4,18 +4,7 @@
     FileManager
 -------------------*/
 
-FileManager::FileManager(WINDOW* _win) : win(_win), n_choices(0), choices(vector<string>(0))
-{
-    FILE *fpipe;
-    char command[4] = "pwd";
-    char str[30];
-
-    fpipe = (FILE*)popen(command, "r");
-    fgets(str, sizeof(str), fpipe);
-    start_dir = string(str);
-    rtrim(start_dir);
-    pclose(fpipe);
-}
+FileManager::FileManager(WINDOW* _win, string start_dir) : win(_win), start_dir(start_dir), n_choices(0), choices(vector<string>(0)) { }
 
 FileManager::~FileManager() {}
 
@@ -103,9 +92,9 @@ string FileManager::init_screen()
             }
             break;
         case 'q':
-            return "";
+            return "q";
         case 'Q':
-            return "";
+            return "q";
         default:
             break;
         }

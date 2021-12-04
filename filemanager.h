@@ -31,17 +31,16 @@ class FileManager
     int n_choices;
     WINDOW* win;
     string start_dir;
-
-    inline void rtrim(string &s);
     bool is_dir(string s);
 
 public:
-    FileManager(WINDOW* _win);
+    FileManager(WINDOW* _win, string start_dir);
 
     ~FileManager();
 
     string init_screen();
     void make_file_list();
     void print_file(WINDOW *file_win, int highlight, int start_choice);
+    inline void rtrim(string &s);
 
 };

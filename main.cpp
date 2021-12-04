@@ -15,6 +15,13 @@
 
 using namespace std;
 
+inline void rtrim(string &s)
+{
+    s.erase(find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+        return !isspace(ch);
+    }).base(), s.end());
+}
+
 int main()
 {
     initscr();
@@ -28,7 +35,18 @@ int main()
     getmaxyx(stdscr, row, col);
     WINDOW *fm_win = newwin(row, col, 0, 0);
 
-    FileManager fm(fm_win);
+    // current directory path
+    FILE *fpipe;
+    char command[4] = "pwd";
+    char str[30];
+
+    fpipe = (FILE*)popen(command, "r");
+    fgets(str, sizeof(str), fpipe);
+    string start_dir = string(str);
+    rtrim(start_dir);
+    pclose(fpipe);
+
+    FileManager fm(fm_win, start_dir);
     string fm_choice;
 
     ExcelList* excelList = nullptr;
@@ -37,6 +55,8 @@ int main()
     {
         if (ip_choice == 1) // Create New Excel
         {
+            // change path to directory(when program starts)
+            chdir(start_dir.c_str());
             char f_name[80];
             int row, col;
             getmaxyx(stdscr, row, col);
@@ -54,8 +74,10 @@ int main()
         }
         else if (ip_choice == 2) // Open Excel
         {
-            if ((fm_choice = fm.init_screen()) == "")
-                continue;
+            if ((fm_choice = fm.init_screen()) == "q")
+                    continue;
+            if ( fm_choice.substr(fm_choice.length()-4) != ".txt" )
+                    continue;
 
             excelList = new ExcelList(fm_choice);
             if (excelList->from_txt(fm_choice))
