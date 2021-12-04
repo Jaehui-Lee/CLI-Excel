@@ -108,7 +108,7 @@ $ ./main
         - FuncCell (2021/11/17)
             - This Cell stores string data (Excel Function) such as "SUM(A1:A4)"
             - parsing function
-            - Kinds : SUM, AVG, PRODUCT, COUNT, MIN, MAX, RAND, RANDBETWEEN
+            - Kinds : SUM, AVG, PRODUCT, COUNT, MIN, MAX, RAND, RANDBETWEEN, SIN, COS, TAN
         - NumberCell (Int to Double) (2021/12/02)
         - EmptyCell (2021/12/04)
             - This Cell was created to implement the 'remove' command

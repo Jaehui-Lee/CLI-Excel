@@ -335,6 +335,11 @@ void FuncCell::parse_function()
             }
         }
     }
+    // SIN, COS, TAN
+    else if ( func_vec.back() == "SIN" || func_vec.back() == "COS" || func_vec.back() == "TAN" )
+    {
+        func_vec.push_back(data.substr(i + 1, data.length() - i - 2));
+    }
 
     calculate();
 }
@@ -406,6 +411,39 @@ void FuncCell::calculate()
 
             value = dis(gen);
             valid = true;
+        }
+    }
+    else if ( func_vec[0] == "SIN" )
+    {
+        if ( func_vec[1][0] >= 'A' && func_vec[1][0] <= 'Z' )
+        {
+            value = sin(table->to_numeric(func_vec[1]));
+        }
+        else
+        {
+            value = sin(stod(func_vec[1]));
+        }
+    }
+    else if ( func_vec[0] == "COS" )
+    {
+        if ( func_vec[1][0] >= 'A' && func_vec[1][0] <= 'Z' )
+        {
+            value = cos(table->to_numeric(func_vec[1]));
+        }
+        else
+        {
+            value = cos(stod(func_vec[1]));
+        }
+    }
+    else if ( func_vec[0] == "TAN" )
+    {
+        if ( func_vec[1][0] >= 'A' && func_vec[1][0] <= 'Z' )
+        {
+            value = tan(table->to_numeric(func_vec[1]));
+        }
+        else
+        {
+            value = tan(stod(func_vec[1]));
         }
     }
 }

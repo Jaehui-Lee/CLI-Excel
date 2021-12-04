@@ -10,6 +10,7 @@
 #include "unistd.h"
 #include <algorithm>
 #include <sstream>
+#include <cmath>
 
 #define MAX_ROW_SIZE 30
 #define MAX_COL_SIZE 26

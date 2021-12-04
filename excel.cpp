@@ -178,7 +178,7 @@ bool Excel::is_expr(vector<string> v_str)
 
 bool Excel::is_func(vector<string> v_str)
 {
-    set<string> func{"SUM", "AVG", "PRODUCT", "COUNT", "MAX", "MIN", "RAND", "RANDBETWEEN"};
+    set<string> func{"SUM", "AVG", "PRODUCT", "COUNT", "MAX", "MIN", "RAND", "RANDBETWEEN", "SIN", "COS", "TAN"};
     for ( int i = 0 ; i < v_str.size() ; i++ )
     {
         if ( v_str[i].find('(') == string::npos )
@@ -244,6 +244,14 @@ bool Excel::is_func(vector<string> v_str)
             if ( !is_number(start) )
                 return false;
             if ( !is_number(end) )
+                return false;
+        }
+        else if ( command == "SIN" || command == "COS" || command == "TAN" )
+        {
+            string str = v_str[i].substr(index_of_brk+1);
+            str.pop_back();
+
+            if ( !is_cell_name(str) && !is_number(str) )
                 return false;
         }
     }
