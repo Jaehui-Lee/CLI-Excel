@@ -36,6 +36,19 @@ public:
 };
 
 /*------------------
+     EmptyCell
+-------------------*/
+
+class EmptyCell : public Cell
+{
+public:
+    string stringify();
+    double to_numeric();
+
+    EmptyCell(int x, int y, Table *t);
+};
+
+/*------------------
      StringCell
 -------------------*/
 

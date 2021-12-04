@@ -10,13 +10,43 @@ Table::Table(WINDOW *win, int max_row_size, int max_col_size, string table_str, 
     data_table = vector<vector<list<Cell *>>>(MAX_ROW_SIZE, vector<list<Cell *>>(MAX_COL_SIZE, list<Cell *>(0)));
 }
 
-Table::~Table() {}
+Table::~Table() 
+{
+    for ( int i = 0 ; i < max_row_size ; i++ )
+    {
+        for ( int j = 0 ; j < max_col_size ; j++ )
+        {
+            for ( auto iter = data_table[i][j].begin() ; iter != data_table[i][j].end() ; iter++ )
+            {
+                delete (*iter);
+            }
+        }
+    }
+}
 
 void Table::reg_cell(Cell *c, int row, int col)
 {
-    if ( data_table[row][col].empty() )
-        number_of_cell++;
-    data_table[row][col].push_back(c);
+    if ( typeid(*c).name() == typeid(EmptyCell).name() )
+    {
+        if ( data_table[row][col].empty() )
+            return;
+        else if ( get_cell_type(row, col).name() == typeid(EmptyCell).name() )
+            return;
+        else
+        {
+            number_of_cell--;
+            data_table[row][col].push_back(c);
+            return;
+        }
+    }
+    else
+    {
+        if ( data_table[row][col].empty() )
+            number_of_cell++;
+        else if ( get_cell_type(row, col).name() == typeid(EmptyCell).name() )
+            number_of_cell++;
+        data_table[row][col].push_back(c);
+    }
 }
 
 double Table::to_numeric(const string &s)
@@ -280,6 +310,10 @@ void Table::to_txt(ofstream& writeFile)
         {
             if (!data_table[j][i].empty())
             {
+                if (get_cell_type(j, i).name() == typeid(EmptyCell).name())
+                {
+                    continue;
+                }
                 writeFile << col_num_to_str(i) << j + 1 << " " << m[get_cell_type(j, i).name()] << " ";
                 if (get_cell_type(j, i).name() == typeid(ExprCell).name())
                 {

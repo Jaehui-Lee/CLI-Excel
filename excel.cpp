@@ -415,7 +415,19 @@ int Excel::parse_user_input(string s)
 
     int col, row;
 
-    if (command == "sets") // set string
+    if (command == "remove")
+    {
+        if ( !is_cell_name(v_to) )
+            return ERROR;
+        for (int i = 0; i < v_to.size(); i++)
+        {
+            col = v_to[i][0] - 'A';
+            row = stoi(v_to[i].substr(1)) - 1;
+            current_table->reg_cell(new EmptyCell(row, col, current_table), row, col);
+        }
+        return NORMAL;
+    }
+    else if (command == "sets") // set string
     {
         for (int i = 0; i < v_to.size(); i++)
         {

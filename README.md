@@ -54,6 +54,9 @@ $ ./main
 # set function (Excel Function)
 >> setf A5 SUM(A1:A4)
 
+# remove cell
+>> remove A1
+
 # move to next sheet
 >> next
 
@@ -107,6 +110,8 @@ $ ./main
             - parsing function
             - Kinds : SUM, AVG, PRODUCT, COUNT, MIN, MAX, RAND, RANDBETWEEN
         - NumberCell (Int to Double) (2021/12/02)
+        - EmptyCell (2021/12/04)
+            - This Cell was created to implement the 'remove' command
     - Table
         - We changed the return type from string to void in the print_table() function and changed it to print to a specific WINDOW* using the ncurses function (2021/11/17)
         - Each time the print_table() function is called, the parser are called only once (reducing the amount of unnecessary computation) using RTTI pattern (2021/11/19)
@@ -131,6 +136,10 @@ $ ./main
         - Set value based on range (2021/11/26)
             - Ex : setn A1:A5 1 2 3 4 5
         - In order to recognize the arrow keys, the method has been changed from receiving input line by line to receiving input one character at a time (2021/12/01)
+        - Remove (2021/12/04)
+            - Delete the data of the existing cell
+            - Considering the Undo function and the table structure, create and assign EmptyCells that contain no data, and implement EmptyCells so that they are not allocated consecutively
+            - Ex : Remove A1
     - ExcelList
         - Sheet (2021/11/11)
             - You can create, move, and delete sheets with the next, prev, and delete commands

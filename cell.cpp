@@ -7,6 +7,15 @@
 Cell::Cell(int x, int y, Table *table) : x(x), y(y), table(table) {}
 
 /*------------------
+     EmptyCell
+-------------------*/
+
+EmptyCell::EmptyCell(int x, int y, Table *t)
+    : Cell(x, y, t) {}
+string EmptyCell::stringify() { return string(""); }
+double EmptyCell::to_numeric() { return 0; }
+
+/*------------------
      StringCell
 -------------------*/
 

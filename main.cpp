@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <list>
+#include <thread>
 
 #include "initialpage.h"
 #include "filemanager.h"
@@ -21,6 +22,8 @@ inline void rtrim(string &s)
         return !isspace(ch);
     }).base(), s.end());
 }
+
+void auto_save(ExcelList* excelList);
 
 int main()
 {
@@ -111,4 +114,9 @@ int main()
     endwin();
 
     return 0;
+}
+
+void auto_save(ExcelList* excelList)
+{
+    
 }

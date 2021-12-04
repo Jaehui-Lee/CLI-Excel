@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <vector>
 #include <list>
+#include <iterator>
 
 using namespace std;
 
@@ -41,7 +42,7 @@ public:
 
     virtual ~Table();
 
-    // Register a new cell
+    // Register a new cell ( including removing )
     void reg_cell(Cell *c, int row, int col);
 
     // Returns the integer value of the cell
