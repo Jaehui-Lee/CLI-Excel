@@ -1,5 +1,5 @@
 main: main.o initialpage.o filemanager.o cell.o table.o excel.o excellist.o
-	g++ -o main main.o initialpage.o filemanager.o cell.o table.o excel.o excellist.o -lncurses
+	g++ -o main main.o initialpage.o filemanager.o cell.o table.o excel.o excellist.o -lncurses -lpthread
 
 main.o: main.cpp
 	g++ -c -o main.o main.cpp

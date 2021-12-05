@@ -9,6 +9,8 @@
 #include <string>
 #include <list>
 #include <thread>
+#include <chrono>
+#include <mutex>
 
 #include "initialpage.h"
 #include "filemanager.h"
@@ -28,7 +30,7 @@ inline void rtrim(string &s)
 void undo(int signum);
 void redo(int signum);
 
-void auto_save(ExcelList* excelList);
+void auto_save();
 
 int main()
 {
@@ -78,6 +80,7 @@ int main()
             excelList = new ExcelList(to);
             signal(SIGTSTP, undo);
             signal(SIGINT, redo);
+            thread th(auto_save);
             while (true)
             {
                 Excel *m = excelList->get_current_excel();
@@ -88,6 +91,7 @@ int main()
             excelList = nullptr;
             signal(SIGTSTP, SIG_IGN);
             signal(SIGINT, SIG_IGN);
+            th.join();
         }
         else if (ip_choice == 2) // Open Excel
         {
@@ -135,9 +139,22 @@ int main()
     return 0;
 }
 
-void auto_save(ExcelList* excelList)
+void auto_save()
 {
-    
+    if ( excelList == nullptr )
+        return;
+    while(true)
+    {
+        for ( int i = 0 ; i < 5 ; i++ )
+        {
+            this_thread::sleep_for(1s);
+            if ( excelList == nullptr )
+                return;
+        }
+        if ( excelList == nullptr )
+            return;
+        excelList->to_txt();
+    }
 }
 
 void undo(int signum)

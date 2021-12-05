@@ -6,6 +6,7 @@
 #include <iostream>
 #include <list>
 #include <sstream>
+#include <mutex>
 
 #define MAX_ROW_SIZE 30
 #define MAX_COL_SIZE 26
@@ -21,6 +22,8 @@ private:
     int excel_count;   // from 1
     int current_excel; // from 1
     string f_name;
+    mutex* m;
+    
 
 public:
     ExcelList(string f_name);

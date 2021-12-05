@@ -4,7 +4,7 @@
        Excel
 -------------------*/
 
-Excel::Excel(WINDOW *_win, int max_row, int max_col, ExcelList *excelList) : win(_win), excelList(excelList), history(vector<vector<string>>(0)), undo_history_to(vector<vector<string>>(0)), undo_history_Cell(vector<vector<Cell *>>(0))
+Excel::Excel(WINDOW *_win, int max_row, int max_col, ExcelList *excelList, mutex* m) : win(_win), excelList(excelList), history(vector<vector<string>>(0)), undo_history_to(vector<vector<string>>(0)), undo_history_Cell(vector<vector<Cell *>>(0)), m(m)
 {
     current_table = new Table(win, max_row, max_col, "", vector<int>());
 }

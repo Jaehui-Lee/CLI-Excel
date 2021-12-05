@@ -9,6 +9,7 @@
 #include <vector>
 #include <cctype>
 #include <set>
+#include <mutex>
 
 using namespace std;
 
@@ -41,6 +42,7 @@ class Excel
     vector<vector<string>> history;
     vector<vector<string>> undo_history_to;
     vector<vector<Cell *>> undo_history_Cell;
+    mutex* m;
 
     bool is_number(string str);
     bool is_number(vector<string> v_str);
@@ -51,7 +53,7 @@ class Excel
     bool is_func(vector<string> v_str);
 
 public:
-    Excel(WINDOW* _win, int max_row, int max_col, ExcelList* excelList);
+    Excel(WINDOW* _win, int max_row, int max_col, ExcelList* excelList, mutex* m);
 
     ~Excel();
 
