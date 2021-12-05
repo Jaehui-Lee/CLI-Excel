@@ -26,6 +26,7 @@ inline void rtrim(string &s)
 }
 
 void undo(int signum);
+void redo(int signum);
 
 void auto_save(ExcelList* excelList);
 
@@ -76,6 +77,7 @@ int main()
             string to(f_name);
             excelList = new ExcelList(to);
             signal(SIGTSTP, undo);
+            signal(SIGINT, redo);
             while (true)
             {
                 Excel *m = excelList->get_current_excel();
@@ -85,6 +87,7 @@ int main()
             delete excelList;
             excelList = nullptr;
             signal(SIGTSTP, SIG_IGN);
+            signal(SIGINT, SIG_IGN);
         }
         else if (ip_choice == 2) // Open Excel
         {
@@ -95,6 +98,7 @@ int main()
 
             excelList = new ExcelList(fm_choice);
             signal(SIGTSTP, undo);
+            signal(SIGINT, redo);
             if (excelList->from_txt(fm_choice))
             {
                 while (true)
@@ -116,6 +120,7 @@ int main()
             delete excelList;
             excelList = nullptr;
             signal(SIGTSTP, SIG_IGN);
+            signal(SIGINT, SIG_IGN);
         }
         else if (ip_choice == 3) // Manual
         {
@@ -141,5 +146,14 @@ void undo(int signum)
     {
         Excel *m = excelList->get_current_excel();
         m->undo();
+    }
+}
+
+void redo(int signum)
+{
+    if ( excelList != nullptr )
+    {
+        Excel *m = excelList->get_current_excel();
+        m->redo();
     }
 }
