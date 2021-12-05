@@ -431,10 +431,8 @@ int Excel::parse_user_input(string s)
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new EmptyCell(row, col, current_table), row, col);
         }
-        while(!undo_history_Cell.empty()){
-            undo_history_Cell.pop_back();
-            undo_history_to.pop_back();
-        }
+        undo_history_Cell.clear();
+        undo_history_to.clear();
         history.push_back(v_to);
         return NORMAL;
     }
@@ -448,10 +446,8 @@ int Excel::parse_user_input(string s)
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new StringCell(v_rest[i], row, col, current_table), row, col);
         }
-        while(!undo_history_Cell.empty()){
-            undo_history_Cell.pop_back();
-            undo_history_to.pop_back();
-        }
+        undo_history_Cell.clear();
+        undo_history_to.clear();
         history.push_back(v_to);
         return NORMAL;
     }
@@ -468,10 +464,8 @@ int Excel::parse_user_input(string s)
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new NumberCell(stod(v_rest[i]), row, col, current_table), row, col);
         }
-        while(!undo_history_Cell.empty()){
-            undo_history_Cell.pop_back();
-            undo_history_to.pop_back();
-        }
+        undo_history_Cell.clear();
+        undo_history_to.clear();
         history.push_back(v_to);
         return NORMAL;
     }
@@ -488,10 +482,8 @@ int Excel::parse_user_input(string s)
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new DateCell(v_rest[i], row, col, current_table), row, col);
         }
-        while(!undo_history_Cell.empty()){
-            undo_history_Cell.pop_back();
-            undo_history_to.pop_back();
-        }
+        undo_history_Cell.clear();
+        undo_history_to.clear();
         history.push_back(v_to);
         return NORMAL;
     }
@@ -508,10 +500,8 @@ int Excel::parse_user_input(string s)
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new ExprCell(v_rest[i], row, col, current_table), row, col);
         }
-        while(!undo_history_Cell.empty()){
-            undo_history_Cell.pop_back();
-            undo_history_to.pop_back();
-        }
+        undo_history_Cell.clear();
+        undo_history_to.clear();
         history.push_back(v_to);
         return NORMAL;
     }
@@ -528,10 +518,8 @@ int Excel::parse_user_input(string s)
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new FuncCell(v_rest[i], row, col, current_table), row, col);
         }
-        while(!undo_history_Cell.empty()){
-            undo_history_Cell.pop_back();
-            undo_history_to.pop_back();
-        }
+        undo_history_Cell.clear();
+        undo_history_to.clear();
         history.push_back(v_to);
         return NORMAL;
     }
