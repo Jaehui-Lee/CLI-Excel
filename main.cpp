@@ -8,96 +8,152 @@
 #include <iostream>
 #include <string>
 #include <list>
+#include <thread>
 
 #include "initialpage.h"
+#include "filemanager.h"
 #include "excellist.h"
-
-#define WIN_ROW_SIZE 40
-#define WIN_COL_SIZE 120
 
 using namespace std;
 
-extern CSPointer stack_;
+ExcelList* excelList = nullptr;
 
+inline void rtrim(string &s)
+{
+    s.erase(find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+        return !isspace(ch);
+    }).base(), s.end());
+}
 
+void undo(int signum);
+void redo(int signum);
+
+void auto_save(ExcelList* excelList);
 
 int main()
 {
-    int rt;
-
-    
-    signal(SIGINT, redo); //ctrl + c -> 다시 실행행
+    signal(SIGINT, SIG_IGN);
     signal(SIGKILL, SIG_IGN);
     signal(SIGQUIT, SIG_IGN);
     signal(SIGSTOP, SIG_IGN);
-    signal(SIGTSTP, back); // ctrl + z -> 되돌리기
+    signal(SIGTSTP, SIG_IGN);
 
+    initscr();
+    start_color();
+    init_pair(1, COLOR_BLACK, COLOR_WHITE);
 
-    pid_t pid = fork();
-    switch (pid)
+    InitialPage ip(stdscr); // when program starts, show initial page
+    int ip_choice = 0;         // user's choice on initial page
+
+    int row, col;
+    getmaxyx(stdscr, row, col);
+    WINDOW *fm_win = newwin(row, col, 0, 0);
+
+    // current directory path
+    FILE *fpipe;
+    char command[4] = "pwd";
+    char str[30];
+
+    fpipe = (FILE*)popen(command, "r");
+    fgets(str, sizeof(str), fpipe);
+    string start_dir = string(str);
+    rtrim(start_dir);
+    pclose(fpipe);
+
+    FileManager fm(fm_win, start_dir);
+    string fm_choice;
+
+    while ((ip_choice = ip.init_screen()) != -1) // if user's choice is 'Exit', go out
     {
-    case -1:
-        perror("fork failed");
-        break;
-    case 0:
-        execlp("printf", "printf", "\"\033[8;40;120t\"", NULL); // change winsize -> row:col = 40:120
-        exit(1);
-        break;
-    default:
-        wait(&rt);
-
-        usleep(100000);
-
-        initscr();
-
-        InitialPage ip(stdscr); // when program starts, show initial page
-        int choice = 0; // user's choice on initial page
-
-        ExcelList excelList; // n excel sheet
-
-        while ((choice = ip.init_screen()) != -1) // if user's choice is 'Exit', go out
+        if (ip_choice == 1) // Create New Excel
         {
-            if (choice == 1) // Create New Excel
+            // change path to directory(when program starts)
+            chdir(start_dir.c_str());
+            char f_name[80];
+            int row, col;
+            getmaxyx(stdscr, row, col);
+            mvwprintw(stdscr, row - 1, 0, ">> ");
+            wgetstr(stdscr, f_name);
+            string to(f_name);
+            excelList = new ExcelList(to);
+            signal(SIGTSTP, undo);
+            signal(SIGINT, redo);
+            while (true)
+            {
+                Excel *m = excelList->get_current_excel();
+                if (!(m->command_line()))
+                    break;
+            }
+            delete excelList;
+            excelList = nullptr;
+            signal(SIGTSTP, SIG_IGN);
+            signal(SIGINT, SIG_IGN);
+        }
+        else if (ip_choice == 2) // Open Excel
+        {
+            if ((fm_choice = fm.init_screen()) == "q")
+                    continue;
+            if ( fm_choice.substr(fm_choice.length()-4) != ".txt" )
+                    continue;
+
+            excelList = new ExcelList(fm_choice);
+            signal(SIGTSTP, undo);
+            signal(SIGINT, redo);
+            if (excelList->from_txt(fm_choice))
             {
                 while (true)
                 {
-                    Excel *m = excelList.get_current_excel();
-                    /*
-                        if user enter command 'next' or 'prev' or 'delete' or 'exit', m->command_line() return
-                    */
-                    int ret = m->command_line();
-                    if (ret == 2) // next
-                    {
-                        excelList.move_next_window();
-                    }
-                    else if (ret == 3) // prev
-                    {
-                        excelList.move_prev_window();
-                    }
-                    else if (ret == 4) // delete
-                    {
-                        excelList.delete_window();
-                    }
-                    else // exit
-                    {
+                    Excel *m = excelList->get_current_excel();
+
+                    if (!(m->command_line()))
                         break;
-                    }
                 }
             }
-            else if (choice == 2) // Open Excel
-            {
-            }
-            else if (choice == 3) // Manual
-            {
-            }
-            else // Exit
-            {
-                break;
-            }
+            // else
+            // {
+            //     wattron(stdscr, COLOR_PAIR(1));
+            //     mvwprintw(stdscr, row - 1, 0, "File doesn't exits");
+            //     wattroff(stdscr, COLOR_PAIR(1));
+            //     wrefresh(stdscr);
+            //     sleep(2);
+            // }
+            delete excelList;
+            excelList = nullptr;
+            signal(SIGTSTP, SIG_IGN);
+            signal(SIGINT, SIG_IGN);
         }
-        delete_stack();
-        endwin();
+        else if (ip_choice == 3) // Manual
+        {
+        }
+        else // Exit
+        {
+            break;
+        }
+    }
+    endwin();
 
-        return 0;
+    return 0;
+}
+
+void auto_save(ExcelList* excelList)
+{
+    
+}
+
+void undo(int signum)
+{
+    if ( excelList != nullptr )
+    {
+        Excel *m = excelList->get_current_excel();
+        m->undo();
+    }
+}
+
+void redo(int signum)
+{
+    if ( excelList != nullptr )
+    {
+        Excel *m = excelList->get_current_excel();
+        m->redo();
     }
 }

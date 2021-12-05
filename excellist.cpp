@@ -1,8 +1,10 @@
 #include "excellist.h"
 
-ExcelList::ExcelList() : excel_count(1), current_excel(1)
+ExcelList::ExcelList(string f_name) : excel_count(1), current_excel(1), f_name(f_name)
 {
-    WINDOW *win = newwin(WIN_ROW_SIZE, WIN_COL_SIZE, 0, 0);
+    int row, col;
+    getmaxyx(stdscr, row, col);
+    WINDOW *win = newwin(row, col, 0, 0);
     excelList.push_back(new Excel(win, MAX_ROW_SIZE, MAX_COL_SIZE, this));
 }
 
@@ -39,9 +41,23 @@ void ExcelList::move_prev_window()
 
 void ExcelList::insert_window()
 {
-    WINDOW *win = newwin(WIN_ROW_SIZE, WIN_COL_SIZE, 0, 0);
+    int row, col;
+    getmaxyx(stdscr, row, col);
+    WINDOW *win = newwin(row, col, 0, 0);
     excelList.push_back(new Excel(win, MAX_ROW_SIZE, MAX_COL_SIZE, this));
     excel_count++;
+}
+
+void ExcelList::move_to_window(string to)
+{
+    int go_excel;
+    std::stringstream ssInt(to);
+    ssInt >> go_excel;
+    if (!ssInt.fail())
+    {
+        if ((current_excel != go_excel)&&(go_excel <= excel_count)&&(go_excel >= 1))
+            current_excel = go_excel;
+    }
 }
 
 void ExcelList::delete_window()
@@ -60,6 +76,8 @@ void ExcelList::delete_window()
 
 void ExcelList::to_txt(string to)
 {
+    if ( to == "" )
+        to = f_name;
     ofstream writeFile(to.data());
     if (writeFile.is_open())
     {
@@ -72,4 +90,26 @@ void ExcelList::to_txt(string to)
         }
     }
     writeFile.close();
+}
+
+bool ExcelList::from_txt(string from)
+{
+    ifstream readFile(from.data());
+    if ( readFile.is_open() )
+    {
+        int count = 0;
+        readFile >> count;
+        for ( int i = 0 ; i < count-1 ; i++ )
+            insert_window();
+        for ( int i = 0 ; i < count ; i++ )
+        {
+            readFile >> current_excel;
+            Excel* excel = get_current_excel();
+            excel->from_txt(readFile);
+        }
+        current_excel = 1;
+        return true;
+    }
+    else
+        return false;
 }

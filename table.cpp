@@ -4,71 +4,71 @@
         Table
 -------------------*/
 
-Table::Table(WINDOW *win, int max_row_size, int max_col_size)
-    : win(win), max_row_size(max_row_size), max_col_size(max_col_size), number_of_cell(0)
+Table::Table(WINDOW *win, int max_row_size, int max_col_size, string table_str, vector<int> cross_pos)
+    : win(win), max_row_size(max_row_size), max_col_size(max_col_size), number_of_cell(0), table_str(table_str), cross_pos(cross_pos)
 {
-    data_table = new Cell **[max_row_size];
-    for (int i = 0; i < max_row_size; i++)
-    {
-        data_table[i] = new Cell *[max_col_size];
-        for (int j = 0; j < max_col_size; j++)
-        {
-            data_table[i][j] = NULL;
-        }
-    }
+    data_table = vector<vector<list<Cell *>>>(MAX_ROW_SIZE, vector<list<Cell *>>(MAX_COL_SIZE, list<Cell *>(0)));
 }
 
-Table::~Table()
+Table::~Table() 
 {
-    for (int i = 0; i < max_row_size; i++)
+    for ( int i = 0 ; i < max_row_size ; i++ )
     {
-        for (int j = 0; j < max_col_size; j++)
+        for ( int j = 0 ; j < max_col_size ; j++ )
         {
-            if (data_table[i][j])
-                delete data_table[i][j];
+            for ( auto iter = data_table[i][j].begin() ; iter != data_table[i][j].end() ; iter++ )
+            {
+                delete (*iter);
+            }
         }
     }
-    for (int i = 0; i < max_row_size; i++)
-    {
-        delete[] data_table[i];
-    }
-    delete[] data_table;
 }
 
 void Table::reg_cell(Cell *c, int row, int col)
 {
-    if (!(row < max_row_size && col < max_col_size))
-        return;
-
-    if (data_table[row][col])
+    if ( typeid(*c).name() == typeid(EmptyCell).name() )
     {
-        number_of_cell--;
-        delete data_table[row][col];
+        if ( data_table[row][col].empty() )
+            return;
+        else if ( get_cell_type(row, col).name() == typeid(EmptyCell).name() )
+            return;
+        else
+        {
+            number_of_cell--;
+            data_table[row][col].push_back(c);
+            return;
+        }
     }
-    data_table[row][col] = c;
-    number_of_cell++;
+    else
+    {
+        if ( data_table[row][col].empty() )
+            number_of_cell++;
+        else if ( get_cell_type(row, col).name() == typeid(EmptyCell).name() )
+            number_of_cell++;
+        data_table[row][col].push_back(c);
+    }
 }
 
-int Table::to_numeric(const string &s)
+double Table::to_numeric(const string &s)
 {
     // Cell name
     int col = s[0] - 'A';
-    int row = atoi(s.c_str() + 1) - 1;
+    int row = stoi(s.substr(1))-1;
 
     if (row < max_row_size && col < max_col_size)
     {
-        if (data_table[row][col])
+        if (!data_table[row][col].empty())
         {
-            return data_table[row][col]->to_numeric();
+            return data_table[row][col].back()->to_numeric();
         }
     }
     return 0;
 }
-int Table::to_numeric(int row, int col)
+double Table::to_numeric(int row, int col)
 {
-    if (row < max_row_size && col < max_col_size && data_table[row][col])
+    if (row < max_row_size && col < max_col_size && !data_table[row][col].empty())
     {
-        return data_table[row][col]->to_numeric();
+        return data_table[row][col].back()->to_numeric();
     }
     return 0;
 }
@@ -76,43 +76,119 @@ string Table::stringify(const string &s)
 {
     // Cell name
     int col = s[0] - 'A';
-    int row = atoi(s.c_str() + 1) - 1;
+    int row = stoi(s.substr(1))-1;
 
     if (row < max_row_size && col < max_col_size)
     {
-        if (data_table[row][col])
+        if (!data_table[row][col].empty())
         {
-            return data_table[row][col]->stringify();
+            return data_table[row][col].back()->stringify();
         }
     }
     return 0;
 }
 string Table::stringify(int row, int col)
 {
-    if (row < max_row_size && col < max_col_size && data_table[row][col])
+    if (row < max_row_size && col < max_col_size && !data_table[row][col].empty())
     {
-        return data_table[row][col]->stringify();
+        return data_table[row][col].back()->stringify();
     }
     return "";
 }
 
-void Table::print_table()
+int Table::get_row_size()
 {
+    return row_size;
+}
+
+int Table::get_col_size()
+{
+    return col_size;
+}
+
+void Table::print_table(int start_row, int start_col, string look_for)
+{
+    make_table();
+    int row, col;
+    getmaxyx(win, row, col);
+
+    istringstream ss(table_str);
+    string line;
+    for ( int i = 0 ; i < start_row ; i++ )
+        getline(ss, line, '\n');
+    row_size = count(table_str.begin(), table_str.end(), '\n');
+    col_size = (table_str.length()-row_size)/row_size;
+    for ( int i = 0 ; i < row-5 ; i++ )
+    {
+        getline(ss, line, '\n');
+        int start_x, start_y;
+        getyx(win, start_y, start_x);
+        if ( (start_row+i) % 2 == 1 )
+        {
+            // horizontal line
+            int x, y;
+            whline(win, ACS_HLINE, col);
+            getyx(win, y, x);
+            for (int i = 0; i <= max_col_size; i++)
+            {
+                if ( cross_pos[i] >= start_col && cross_pos[i] <= start_col+col )
+                {
+                    wmove(win, y, cross_pos[i]-start_col);
+                    whline(win, ACS_PLUS, 1);
+                }
+            }
+            wmove(win, start_y+1, 0);
+            continue;
+        }
+        string sub_line = line.substr(start_col, col);
+        for ( int j = 0 ; j < sub_line.length() ; j++ )
+        {
+            if ( sub_line[j] == '|' )
+            {
+                int x, y;
+                wvline(win, ACS_VLINE, 1);
+                getyx(win, y, x);
+                wmove(win, y, x + 1);
+            }
+            else
+            {
+                if ( j > 4 && look_for != "" && sub_line.substr(j, look_for.length()) == look_for )
+                {
+                    wattron(win, COLOR_PAIR(1));
+                    wprintw(win, look_for.c_str());
+                    wattroff(win, COLOR_PAIR(1));
+                    j += look_for.length()-1;
+                    continue;
+                }
+                waddch(win, sub_line[j]);
+            }
+        }
+        wmove(win, start_y+1, 0);
+    }
+}
+
+void Table::make_table()
+{
+    row_size = 0;
+    col_size = 0;
+    table_str.clear();
+    cross_pos.clear();
+    
     int *col_max_wide = new int[max_col_size];
 
     for (int i = 0; i < max_col_size; i++)
     {
         for (int j = 0; j < max_row_size; j++)
         {
-            if (data_table[j][i])
+            if (!data_table[j][i].empty())
             {
                 if (get_cell_type(j, i).name() == typeid(ExprCell).name())
                 {
-                    dynamic_cast<ExprCell *>(data_table[j][i])->parse_expression();
+                    dynamic_cast<ExprCell *>(data_table[j][i].back())->parse_expression();
                 }
                 else if (get_cell_type(j, i).name() == typeid(FuncCell).name())
                 {
-                    dynamic_cast<FuncCell *>(data_table[j][i])->parse_function();
+                    dynamic_cast<FuncCell *>(data_table[j][i].back())->parse_function();
                 }
             }
         }
@@ -123,92 +199,67 @@ void Table::print_table()
         unsigned int max_wide = 2;
         for (int j = 0; j < max_row_size; j++)
         {
-            if (data_table[j][i] &&
-                data_table[j][i]->stringify().length() > max_wide)
+            if (!data_table[j][i].empty() &&
+                data_table[j][i].back()->stringify().length() > max_wide)
             {
-                max_wide = data_table[j][i]->stringify().length();
+                max_wide = data_table[j][i].back()->stringify().length();
             }
         }
         col_max_wide[i] = max_wide;
     }
 
-    wprintw(win, "    ");
+    table_str += "    ";
     int total_wide = 4;
-    for (int i = 0; i < max_col_size; i++)
-    {
-        if (col_max_wide[i])
-        {
-            int x, y;
-            int max_len = max(2, col_max_wide[i]);
-            wprintw(win, " ");
-            wvline(win, ACS_VLINE, 1);
-            getyx(win, y, x);
-            wmove(win, y, x + 1);
-            wprintw(win, " ");
-            wprintw(win, col_num_to_str(i).c_str());
-            repeat_char(max_len - col_num_to_str(i).length(), " ");
+    for (int i = 0; i < max_col_size; i++) {
+        if (col_max_wide[i]) {
+        int max_len = max(2, col_max_wide[i]);
+        table_str += " | " + col_num_to_str(i);
+        table_str += repeat_char(max_len - col_num_to_str(i).length(), ' ');
 
-            total_wide += (max_len + 3);
+        total_wide += (max_len + 3);
         }
     }
 
-    wprintw(win, "\n");
+    table_str += " |\n";
+    total_wide += 2;
 
-    int cross_pos[max_col_size];
-    cross_pos[0] = 5;
+    cross_pos.push_back(5);
 
     for (int i = 0; i <= max_col_size; i++)
     {
         int max_len = max(2, col_max_wide[i]);
-        cross_pos[i + 1] = max_len + 3 + cross_pos[i];
+        cross_pos.push_back(max_len+3+cross_pos[i]);
     }
 
-    for (int i = 0; i < max_row_size; i++)
-    {
-        // horizontal line
-        int x, y;
-        whline(win, ACS_HLINE, total_wide);
-        getyx(win, y, x);
-        for (int i = 0; i <= max_col_size; i++)
-        {
-            wmove(win, y, cross_pos[i]);
-            whline(win, ACS_PLUS, 1);
-        }
-        wprintw(win, "\n");
+    for (int i = 0; i < max_row_size; i++) {
+        table_str += repeat_char(total_wide, '-');
+        table_str += "\n" + to_string(i + 1);
+        table_str += repeat_char(4 - to_string(i + 1).length(), ' ');
 
-        // data line
-        wprintw(win, to_string(i + 1).c_str());
-        repeat_char(4 - to_string(i + 1).length(), " ");
+        for (int j = 0; j < max_col_size; j++) {
+        if (col_max_wide[j]) {
+            int max_len = max(2, col_max_wide[j]);
 
-        for (int j = 0; j < max_col_size; j++)
-        {
-            if (col_max_wide[j])
-            {
-                int max_len = max(2, col_max_wide[j]);
-                int x, y;
-
-                string s = "";
-                if (data_table[i][j])
-                {
-                    s = data_table[i][j]->stringify();
-                }
-                wprintw(win, " ");
-                wvline(win, ACS_VLINE, 1);
-                getyx(win, y, x);
-                wmove(win, y, x + 1);
-                wprintw(win, " ");
-                wprintw(win, s.c_str());
-                repeat_char(max_len - s.length(), " ");
+            string s = "";
+            if (!data_table[i][j].empty()) {
+            s = data_table[i][j].back()->stringify();
             }
+            table_str += " | " + s;
+            table_str += repeat_char(max_len - s.length(), ' ');
         }
-        wprintw(win, "\n");
+        }
+        table_str += " |\n";
     }
+    table_str += repeat_char(total_wide, '-');
+    table_str += " |\n";
 }
 
-void Table::repeat_char(int n, const char *c)
+string Table::repeat_char(int n, char c)
 {
-    for (int i = 0; i < n; i++)
-        wprintw(win, c);
+  string s = "";
+  for (int i = 0; i < n; i++) s.push_back(c);
+
+  return s;
 }
 
 // change number to column name ( 0->A, 1->B, 2->C, ... , 25->Z )
@@ -233,14 +284,14 @@ string Table::col_num_to_str(int n)
 
 bool Table::is_empty(int row, int col)
 {
-    if (!data_table[row][col])
+    if (!data_table[row][col].empty())
         return true;
     return false;
 }
 
 const type_info &Table::get_cell_type(int row, int col)
 {
-    return typeid(*data_table[row][col]);
+    return typeid(*(data_table[row][col].back()));
 }
 
 void Table::to_txt(ofstream& writeFile)
@@ -257,22 +308,43 @@ void Table::to_txt(ofstream& writeFile)
     {
         for (int j = 0; j < max_row_size; j++)
         {
-            if (data_table[j][i])
+            if (!data_table[j][i].empty())
             {
+                if (get_cell_type(j, i).name() == typeid(EmptyCell).name())
+                {
+                    continue;
+                }
                 writeFile << col_num_to_str(i) << j + 1 << " " << m[get_cell_type(j, i).name()] << " ";
                 if (get_cell_type(j, i).name() == typeid(ExprCell).name())
                 {
-                    writeFile << dynamic_cast<ExprCell *>(data_table[j][i])->get_data() << endl;
+                    writeFile << dynamic_cast<ExprCell *>(data_table[j][i].back())->get_data() << endl;
                 }
                 else if (get_cell_type(j, i).name() == typeid(FuncCell).name())
                 {
-                    writeFile << dynamic_cast<FuncCell *>(data_table[j][i])->get_data() << endl;
+                    writeFile << dynamic_cast<FuncCell *>(data_table[j][i].back())->get_data() << endl;
                 }
                 else
                 {
-                    writeFile << data_table[j][i]->stringify() << endl;
+                    writeFile << data_table[j][i].back()->stringify() << endl;
                 }
             }
         }
     }
+}
+
+Cell * Table::undo(const string &s)
+{
+    // Cell name
+    int col = s[0] - 'A';
+    int row = stoi(s.substr(1))-1;
+
+    if ( !data_table[row][col].empty() ){
+        Cell * temp = data_table[row][col].back();
+        data_table[row][col].pop_back();
+        return temp;
+    }
+    else{
+        return NULL;
+    }
+    
 }
