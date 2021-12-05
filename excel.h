@@ -39,6 +39,8 @@ class Excel
     int start_row = 0;
     int start_col = 0;
     vector<vector<string>> history;
+    vector<vector<string>> undo_history_to;
+    vector<vector<Cell *>> undo_history_Cell;
 
     bool is_number(string str);
     bool is_number(vector<string> v_str);
@@ -63,4 +65,5 @@ public:
     void from_txt(ifstream& readFile);
 
     void undo();
+    void redo();
 };

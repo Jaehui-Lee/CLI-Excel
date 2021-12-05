@@ -4,7 +4,7 @@
        Excel
 -------------------*/
 
-Excel::Excel(WINDOW *_win, int max_row, int max_col, ExcelList *excelList) : win(_win), excelList(excelList), history(vector<vector<string>>(0))
+Excel::Excel(WINDOW *_win, int max_row, int max_col, ExcelList *excelList) : win(_win), excelList(excelList), history(vector<vector<string>>(0)), undo_history_to(vector<vector<string>>(0)), undo_history_Cell(vector<vector<Cell *>>(0))
 {
     current_table = new Table(win, max_row, max_col, "", vector<int>());
 }
@@ -431,6 +431,10 @@ int Excel::parse_user_input(string s)
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new EmptyCell(row, col, current_table), row, col);
         }
+        while(!undo_history_Cell.empty()){
+            undo_history_Cell.pop_back();
+            undo_history_to.pop_back();
+        }
         history.push_back(v_to);
         return NORMAL;
     }
@@ -443,6 +447,10 @@ int Excel::parse_user_input(string s)
             col = v_to[i][0] - 'A';
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new StringCell(v_rest[i], row, col, current_table), row, col);
+        }
+        while(!undo_history_Cell.empty()){
+            undo_history_Cell.pop_back();
+            undo_history_to.pop_back();
         }
         history.push_back(v_to);
         return NORMAL;
@@ -460,6 +468,10 @@ int Excel::parse_user_input(string s)
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new NumberCell(stod(v_rest[i]), row, col, current_table), row, col);
         }
+        while(!undo_history_Cell.empty()){
+            undo_history_Cell.pop_back();
+            undo_history_to.pop_back();
+        }
         history.push_back(v_to);
         return NORMAL;
     }
@@ -475,6 +487,10 @@ int Excel::parse_user_input(string s)
             col = v_to[i][0] - 'A';
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new DateCell(v_rest[i], row, col, current_table), row, col);
+        }
+        while(!undo_history_Cell.empty()){
+            undo_history_Cell.pop_back();
+            undo_history_to.pop_back();
         }
         history.push_back(v_to);
         return NORMAL;
@@ -492,6 +508,10 @@ int Excel::parse_user_input(string s)
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new ExprCell(v_rest[i], row, col, current_table), row, col);
         }
+        while(!undo_history_Cell.empty()){
+            undo_history_Cell.pop_back();
+            undo_history_to.pop_back();
+        }
         history.push_back(v_to);
         return NORMAL;
     }
@@ -507,6 +527,10 @@ int Excel::parse_user_input(string s)
             col = v_to[i][0] - 'A';
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new FuncCell(v_rest[i], row, col, current_table), row, col);
+        }
+        while(!undo_history_Cell.empty()){
+            undo_history_Cell.pop_back();
+            undo_history_to.pop_back();
         }
         history.push_back(v_to);
         return NORMAL;
@@ -657,13 +681,38 @@ void Excel::undo()
 {
     if ( history.empty() )
         return;
-    
+    vector<string> h_to;
+    vector<Cell *> h_cell;
     vector<string> h = history.back();
     history.pop_back();
 
     for ( int i = 0 ; i < h.size() ; i++ )
     {
-        current_table->undo(h[i]);
+        h_to.push_back(h[i]);
+        h_cell.push_back(current_table->undo(h[i]));
+    }
+    undo_history_to.push_back(h_to);
+    undo_history_Cell.push_back(h_cell);
+    print_table();
+}
+void Excel::redo()
+{   
+    if(undo_history_Cell.empty())
+        return;
+    vector<string> h_to = undo_history_to.back();
+    undo_history_to.pop_back();
+    vector<Cell *> h_cell = undo_history_Cell.back();
+    undo_history_Cell.pop_back();
+    history.push_back(h_to);
+
+    Cell * temp;
+
+    for ( int i = 0 ; i < h_to.size() ; i++ )
+    {
+        int col = h_to[i][0] - 'A';
+        int row = stoi(h_to[i].substr(1)) - 1;
+        current_table->reg_cell(h_cell[i], row, col);
+
     }
 
     print_table();
