@@ -84,7 +84,7 @@ $ ./main
     - Cell
         - NumberCell
             - This Cell stores number data
-        - StringCel\l
+        - StringCell
             - This Cell stores string data
         - DateCell
             - This Cell stores date data (time_t)
@@ -151,7 +151,9 @@ $ ./main
         - Signal (2021/12/05)
             - SIGINT, SIGKILL, SIGQUIT, SIGSTOP are ignored
         - Undo (2021/12/05)
-            - If you enter Ctrl+Z, Excel returns to its previous state
+            - If you press Ctrl+Z, Excel returns to its previous state
+        - Redo (2021/12/05)
+            - If you press Ctrl+C and there is a record of 'Undo' before, it goes back to that state
     - Error Handling
         - Add Error checking about (string, number, date) cell name, value(number, date), ... in command (2021/11/30)
         - Add Error checking about formula of expression cell, function cell (2021/12/01)
