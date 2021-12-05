@@ -1,11 +1,11 @@
 #include "excellist.h"
 
-ExcelList::ExcelList(string f_name) : excel_count(1), current_excel(1), f_name(f_name), m(new mutex())
+ExcelList::ExcelList(string f_name, mutex* cell_m, mutex* win_m) : excel_count(1), current_excel(1), f_name(f_name), win_m(win_m), cell_m(cell_m)
 {
     int row, col;
     getmaxyx(stdscr, row, col);
     WINDOW *win = newwin(row, col, 0, 0);
-    excelList.push_back(new Excel(win, MAX_ROW_SIZE, MAX_COL_SIZE, this, m));
+    excelList.push_back(new Excel(win, MAX_ROW_SIZE, MAX_COL_SIZE, this, cell_m, win_m));
 }
 
 Excel *ExcelList::get_current_excel()
@@ -44,7 +44,7 @@ void ExcelList::insert_window()
     int row, col;
     getmaxyx(stdscr, row, col);
     WINDOW *win = newwin(row, col, 0, 0);
-    excelList.push_back(new Excel(win, MAX_ROW_SIZE, MAX_COL_SIZE, this, m));
+    excelList.push_back(new Excel(win, MAX_ROW_SIZE, MAX_COL_SIZE, this, cell_m, win_m));
     excel_count++;
 }
 

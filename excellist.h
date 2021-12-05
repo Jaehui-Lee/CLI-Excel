@@ -22,11 +22,12 @@ private:
     int excel_count;   // from 1
     int current_excel; // from 1
     string f_name;
-    mutex* m;
+    mutex* cell_m;
+    mutex* win_m;
     
 
 public:
-    ExcelList(string f_name);
+    ExcelList(string f_name, mutex* cell_m, mutex* win_m);
 
     Excel *get_current_excel();
     int get_current_page();

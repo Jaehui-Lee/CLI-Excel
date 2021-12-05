@@ -20,6 +20,10 @@ using namespace std;
 
 ExcelList* excelList = nullptr;
 
+mutex* cell_m = new mutex();
+mutex* win_m = new mutex();
+
+
 inline void rtrim(string &s)
 {
     s.erase(find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
@@ -77,7 +81,7 @@ int main()
             mvwprintw(stdscr, row - 1, 0, ">> ");
             wgetstr(stdscr, f_name);
             string to(f_name);
-            excelList = new ExcelList(to);
+            excelList = new ExcelList(to, cell_m, win_m);
             signal(SIGTSTP, undo);
             signal(SIGINT, redo);
             thread th(auto_save);
@@ -100,9 +104,10 @@ int main()
             if ( fm_choice.substr(fm_choice.length()-4) != ".txt" )
                     continue;
 
-            excelList = new ExcelList(fm_choice);
+            excelList = new ExcelList(fm_choice, cell_m, win_m);
             signal(SIGTSTP, undo);
             signal(SIGINT, redo);
+            thread th(auto_save);
             if (excelList->from_txt(fm_choice))
             {
                 while (true)
@@ -125,6 +130,7 @@ int main()
             excelList = nullptr;
             signal(SIGTSTP, SIG_IGN);
             signal(SIGINT, SIG_IGN);
+            th.join();
         }
         else if (ip_choice == 3) // Manual
         {
@@ -151,6 +157,8 @@ void auto_save()
             if ( excelList == nullptr )
                 return;
         }
+        lock_guard<mutex> cell_lock(*cell_m);
+        lock_guard<mutex> win_lock(*win_m);
         if ( excelList == nullptr )
             return;
         excelList->to_txt();
@@ -161,6 +169,7 @@ void undo(int signum)
 {
     if ( excelList != nullptr )
     {
+        lock_guard<mutex> cell_lock(*cell_m);
         Excel *m = excelList->get_current_excel();
         m->undo();
     }
@@ -170,6 +179,7 @@ void redo(int signum)
 {
     if ( excelList != nullptr )
     {
+        lock_guard<mutex> cell_lock(*cell_m);
         Excel *m = excelList->get_current_excel();
         m->redo();
     }

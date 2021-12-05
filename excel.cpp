@@ -4,7 +4,7 @@
        Excel
 -------------------*/
 
-Excel::Excel(WINDOW *_win, int max_row, int max_col, ExcelList *excelList, mutex* m) : win(_win), excelList(excelList), history(vector<vector<string>>(0)), undo_history_to(vector<vector<string>>(0)), undo_history_Cell(vector<vector<Cell *>>(0)), m(m)
+Excel::Excel(WINDOW *_win, int max_row, int max_col, ExcelList *excelList, mutex* cell_m, mutex* win_m) : win(_win), excelList(excelList), history(vector<vector<string>>(0)), undo_history_to(vector<vector<string>>(0)), undo_history_Cell(vector<vector<Cell *>>(0)), win_m(win_m), cell_m(cell_m)
 {
     current_table = new Table(win, max_row, max_col, "", vector<int>());
 }
@@ -307,6 +307,7 @@ int Excel::parse_user_input(string s)
 
     if (command == "next")
     {
+        lock_guard<mutex> win_lock(*win_m);
         excelList->move_next_window();
         return NEXT;
     }
@@ -317,11 +318,14 @@ int Excel::parse_user_input(string s)
     }
     else if (command == "delete")
     {
+        lock_guard<mutex> win_lock(*win_m);
         excelList->delete_window();
         return DELETE;
     }
     else if (command == "exit")
     {
+        lock_guard<mutex> cell_lock(*cell_m);
+        lock_guard<mutex> win_lock(*win_m);
         int exit_row, exit_col;
         getmaxyx(win, exit_row, exit_col);
         char str[10];
@@ -392,6 +396,8 @@ int Excel::parse_user_input(string s)
 
     if (command == "save") // save to txt
     {
+        lock_guard<mutex> cell_lock(*cell_m);
+        lock_guard<mutex> win_lock(*win_m);
         if ( to == "" )
             excelList->to_txt();
         else
@@ -408,6 +414,7 @@ int Excel::parse_user_input(string s)
     }
     else if (command == "goto") // go to another excel
     {
+        lock_guard<mutex> win_lock(*win_m);
         // "to" must be number > 0
         if ( !is_number(to) )
             return ERROR;
@@ -423,6 +430,7 @@ int Excel::parse_user_input(string s)
 
     if (command == "remove")
     {
+        lock_guard<mutex> cell_lock(*cell_m);
         if ( !is_cell_name(v_to) )
             return ERROR;
         for (int i = 0; i < v_to.size(); i++)
@@ -438,6 +446,7 @@ int Excel::parse_user_input(string s)
     }
     else if (command == "sets") // set string
     {
+        lock_guard<mutex> cell_lock(*cell_m);
         if (v_to.size() != v_rest.size())
             return ERROR;
         for (int i = 0; i < v_to.size(); i++)
@@ -453,6 +462,7 @@ int Excel::parse_user_input(string s)
     }
     else if (command == "setn") // set number
     {
+        lock_guard<mutex> cell_lock(*cell_m);
         if (v_to.size() != v_rest.size())
             return ERROR;
         // check value(number) error
@@ -471,6 +481,7 @@ int Excel::parse_user_input(string s)
     }
     else if (command == "setd") // set date
     {
+        lock_guard<mutex> cell_lock(*cell_m);
         if (v_to.size() != v_rest.size())
             return ERROR;
         // check value(date) error
@@ -489,6 +500,7 @@ int Excel::parse_user_input(string s)
     }
     else if (command == "sete") // set expression
     {
+        lock_guard<mutex> cell_lock(*cell_m);
         if (v_to.size() != v_rest.size())
             return ERROR;
         // check expression error
@@ -507,6 +519,7 @@ int Excel::parse_user_input(string s)
     }
     else if (command == "setf") // set function
     {
+        lock_guard<mutex> cell_lock(*cell_m);
         if (v_to.size() != v_rest.size())
             return ERROR;
         // check function error
