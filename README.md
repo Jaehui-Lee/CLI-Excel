@@ -154,6 +154,8 @@ $ ./main
             - If you press Ctrl+Z, Excel returns to its previous state
         - Redo (2021/12/05)
             - If you press Ctrl+C and there is a record of 'Undo' before, it goes back to that state
+        - Auto Save (2021/12/06)
+            - Excel files are automatically saved every 30 seconds (thread)
     - Error Handling
         - Add Error checking about (string, number, date) cell name, value(number, date), ... in command (2021/11/30)
         - Add Error checking about formula of expression cell, function cell (2021/12/01)

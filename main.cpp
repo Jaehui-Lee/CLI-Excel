@@ -151,7 +151,7 @@ void auto_save()
         return;
     while(true)
     {
-        for ( int i = 0 ; i < 5 ; i++ )
+        for ( int i = 0 ; i < 30 ; i++ )
         {
             this_thread::sleep_for(1s);
             if ( excelList == nullptr )
