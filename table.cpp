@@ -332,12 +332,19 @@ void Table::to_txt(ofstream& writeFile)
     }
 }
 
-void Table::undo(const string &s)
+Cell * Table::undo(const string &s)
 {
     // Cell name
     int col = s[0] - 'A';
     int row = stoi(s.substr(1))-1;
 
-    if ( !data_table[row][col].empty() )
+    if ( !data_table[row][col].empty() ){
+        Cell * temp = data_table[row][col].back();
         data_table[row][col].pop_back();
+        return temp;
+    }
+    else{
+        return NULL;
+    }
+    
 }

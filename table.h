@@ -74,5 +74,6 @@ public:
 
     void to_txt(ofstream& writeFile);
 
-    void undo(const string &s);
+    Cell * undo(const string &s);
+
 };
