@@ -84,7 +84,7 @@ $ ./main
     - Cell
         - NumberCell
             - This Cell stores number data
-        - StringCell
+        - StringCel\l
             - This Cell stores string data
         - DateCell
             - This Cell stores date data (time_t)
@@ -148,6 +148,10 @@ $ ./main
             - goto 5
     - main
         - We implemented so that Excel functions can be used until the user selects exit in InitialPage
+        - Signal (2021/12/05)
+            - SIGINT, SIGKILL, SIGQUIT, SIGSTOP are ignored
+        - Undo (2021/12/05)
+            - If you enter Ctrl+Z, Excel returns to its previous state
     - Error Handling
         - Add Error checking about (string, number, date) cell name, value(number, date), ... in command (2021/11/30)
         - Add Error checking about formula of expression cell, function cell (2021/12/01)

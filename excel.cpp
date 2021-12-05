@@ -4,7 +4,7 @@
        Excel
 -------------------*/
 
-Excel::Excel(WINDOW *_win, int max_row, int max_col, ExcelList *excelList) : win(_win), excelList(excelList)
+Excel::Excel(WINDOW *_win, int max_row, int max_col, ExcelList *excelList) : win(_win), excelList(excelList), history(vector<vector<string>>(0))
 {
     current_table = new Table(win, max_row, max_col, "", vector<int>());
 }
@@ -388,8 +388,6 @@ int Excel::parse_user_input(string s)
         {
             v_rest.push_back(value);
         }
-        if (v_to.size() != v_rest.size())
-            return ERROR;
     }
 
     if (command == "save") // save to txt
@@ -433,20 +431,26 @@ int Excel::parse_user_input(string s)
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new EmptyCell(row, col, current_table), row, col);
         }
+        history.push_back(v_to);
         return NORMAL;
     }
     else if (command == "sets") // set string
     {
+        if (v_to.size() != v_rest.size())
+            return ERROR;
         for (int i = 0; i < v_to.size(); i++)
         {
             col = v_to[i][0] - 'A';
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new StringCell(v_rest[i], row, col, current_table), row, col);
         }
+        history.push_back(v_to);
         return NORMAL;
     }
     else if (command == "setn") // set number
     {
+        if (v_to.size() != v_rest.size())
+            return ERROR;
         // check value(number) error
         if ( !is_number(v_rest) )
             return ERROR;
@@ -456,10 +460,13 @@ int Excel::parse_user_input(string s)
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new NumberCell(stod(v_rest[i]), row, col, current_table), row, col);
         }
+        history.push_back(v_to);
         return NORMAL;
     }
     else if (command == "setd") // set date
     {
+        if (v_to.size() != v_rest.size())
+            return ERROR;
         // check value(date) error
         if ( !is_date(v_rest) )
             return ERROR;
@@ -469,10 +476,13 @@ int Excel::parse_user_input(string s)
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new DateCell(v_rest[i], row, col, current_table), row, col);
         }
+        history.push_back(v_to);
         return NORMAL;
     }
     else if (command == "sete") // set expression
     {
+        if (v_to.size() != v_rest.size())
+            return ERROR;
         // check expression error
         if ( !is_expr(v_rest) )
             return ERROR;
@@ -482,10 +492,13 @@ int Excel::parse_user_input(string s)
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new ExprCell(v_rest[i], row, col, current_table), row, col);
         }
+        history.push_back(v_to);
         return NORMAL;
     }
     else if (command == "setf") // set function
     {
+        if (v_to.size() != v_rest.size())
+            return ERROR;
         // check function error
         if ( !is_func(v_rest) )
             return ERROR;
@@ -495,6 +508,7 @@ int Excel::parse_user_input(string s)
             row = stoi(v_to[i].substr(1)) - 1;
             current_table->reg_cell(new FuncCell(v_rest[i], row, col, current_table), row, col);
         }
+        history.push_back(v_to);
         return NORMAL;
     }
 
@@ -637,4 +651,20 @@ void Excel::from_txt(ifstream &readFile)
             current_table->reg_cell(new FuncCell(value, row, col, current_table), row, col);
         }
     }
+}
+
+void Excel::undo()
+{
+    if ( history.empty() )
+        return;
+    
+    vector<string> h = history.back();
+    history.pop_back();
+
+    for ( int i = 0 ; i < h.size() ; i++ )
+    {
+        current_table->undo(h[i]);
+    }
+
+    print_table();
 }

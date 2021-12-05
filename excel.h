@@ -38,6 +38,7 @@ class Excel
     ExcelList *excelList;
     int start_row = 0;
     int start_col = 0;
+    vector<vector<string>> history;
 
     bool is_number(string str);
     bool is_number(vector<string> v_str);
@@ -60,4 +61,6 @@ public:
 
     void to_txt(ofstream& writeFile, int current_excel);
     void from_txt(ifstream& readFile);
+
+    void undo();
 };

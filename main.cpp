@@ -16,6 +16,8 @@
 
 using namespace std;
 
+ExcelList* excelList = nullptr;
+
 inline void rtrim(string &s)
 {
     s.erase(find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
@@ -23,10 +25,18 @@ inline void rtrim(string &s)
     }).base(), s.end());
 }
 
+void undo(int signum);
+
 void auto_save(ExcelList* excelList);
 
 int main()
 {
+    signal(SIGINT, SIG_IGN);
+    signal(SIGKILL, SIG_IGN);
+    signal(SIGQUIT, SIG_IGN);
+    signal(SIGSTOP, SIG_IGN);
+    signal(SIGTSTP, SIG_IGN);
+
     initscr();
     start_color();
     init_pair(1, COLOR_BLACK, COLOR_WHITE);
@@ -52,8 +62,6 @@ int main()
     FileManager fm(fm_win, start_dir);
     string fm_choice;
 
-    ExcelList* excelList = nullptr;
-
     while ((ip_choice = ip.init_screen()) != -1) // if user's choice is 'Exit', go out
     {
         if (ip_choice == 1) // Create New Excel
@@ -67,6 +75,7 @@ int main()
             wgetstr(stdscr, f_name);
             string to(f_name);
             excelList = new ExcelList(to);
+            signal(SIGTSTP, undo);
             while (true)
             {
                 Excel *m = excelList->get_current_excel();
@@ -74,6 +83,8 @@ int main()
                     break;
             }
             delete excelList;
+            excelList = nullptr;
+            signal(SIGTSTP, SIG_IGN);
         }
         else if (ip_choice == 2) // Open Excel
         {
@@ -83,6 +94,7 @@ int main()
                     continue;
 
             excelList = new ExcelList(fm_choice);
+            signal(SIGTSTP, undo);
             if (excelList->from_txt(fm_choice))
             {
                 while (true)
@@ -102,6 +114,8 @@ int main()
             //     sleep(2);
             // }
             delete excelList;
+            excelList = nullptr;
+            signal(SIGTSTP, SIG_IGN);
         }
         else if (ip_choice == 3) // Manual
         {
@@ -119,4 +133,13 @@ int main()
 void auto_save(ExcelList* excelList)
 {
     
+}
+
+void undo(int signum)
+{
+    if ( excelList != nullptr )
+    {
+        Excel *m = excelList->get_current_excel();
+        m->undo();
+    }
 }

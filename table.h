@@ -73,4 +73,6 @@ public:
     int get_col_size();
 
     void to_txt(ofstream& writeFile);
+
+    void undo(const string &s);
 };
