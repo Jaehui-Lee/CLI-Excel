@@ -9,9 +9,11 @@
 #include <random>
 #include "unistd.h"
 #include <algorithm>
+#include <sstream>
+#include <cmath>
 
-#define MAX_ROW_SIZE 18
-#define MAX_COL_SIZE 20
+#define MAX_ROW_SIZE 30
+#define MAX_COL_SIZE 26
 
 using namespace std;
 
@@ -29,9 +31,22 @@ protected:
 
 public:
     virtual string stringify() = 0;
-    virtual int to_numeric() = 0;
+    virtual double to_numeric() = 0;
 
     Cell(int x, int y, Table *table);
+};
+
+/*------------------
+     EmptyCell
+-------------------*/
+
+class EmptyCell : public Cell
+{
+public:
+    string stringify();
+    double to_numeric();
+
+    EmptyCell(int x, int y, Table *t);
 };
 
 /*------------------
@@ -44,7 +59,7 @@ class StringCell : public Cell
 
 public:
     string stringify();
-    int to_numeric();
+    double to_numeric();
 
     StringCell(string data, int x, int y, Table *t);
 };
@@ -55,13 +70,13 @@ public:
 
 class NumberCell : public Cell
 {
-    int data;
+    double data;
 
 public:
     string stringify();
-    int to_numeric();
+    double to_numeric();
 
-    NumberCell(int data, int x, int y, Table *t);
+    NumberCell(double data, int x, int y, Table *t);
 };
 
 /*------------------
@@ -74,7 +89,7 @@ class DateCell : public Cell
 
 public:
     string stringify();
-    int to_numeric();
+    double to_numeric();
 
     DateCell(string s, int x, int y, Table *t);
 };
@@ -101,7 +116,7 @@ public:
     string get_data();
 
     string stringify();
-    int to_numeric();
+    double to_numeric();
 };
 
 
@@ -112,7 +127,7 @@ public:
 class FuncCell : public Cell
 {
     string data;
-    int value; // for RAND, RANDBETWEEN
+    double value; // for RAND, RANDBETWEEN
     bool valid; // for RAND, RANDBETWEEN
 
     vector<string> func_vec;
@@ -128,5 +143,5 @@ public:
     string get_data();
 
     string stringify();
-    int to_numeric();
+    double to_numeric();
 };

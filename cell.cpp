@@ -7,23 +7,50 @@
 Cell::Cell(int x, int y, Table *table) : x(x), y(y), table(table) {}
 
 /*------------------
+     EmptyCell
+-------------------*/
+
+EmptyCell::EmptyCell(int x, int y, Table *t)
+    : Cell(x, y, t) {}
+string EmptyCell::stringify() { return string(""); }
+double EmptyCell::to_numeric() { return 0; }
+
+/*------------------
      StringCell
 -------------------*/
 
 StringCell::StringCell(string data, int x, int y, Table *t)
     : data(data), Cell(x, y, t) {}
 string StringCell::stringify() { return data; }
-int StringCell::to_numeric() { return 0; }
+double StringCell::to_numeric() { return 0; }
 
 /*------------------
      NumberCell
 -------------------*/
 
-NumberCell::NumberCell(int data, int x, int y, Table *t)
+NumberCell::NumberCell(double data, int x, int y, Table *t)
     : data(data), Cell(x, y, t) {}
 
-string NumberCell::stringify() { return to_string(data); }
-int NumberCell::to_numeric() { return data; }
+string NumberCell::stringify()
+{
+    string str = to_string(data);
+    for ( int i = str.length()-1 ; i > 0 ; i-- )
+    {
+        if ( str[i] == '0' )
+        {
+            str.pop_back();
+        }
+        else if  ( str[i] == '.' )
+        {
+            str.pop_back();
+            break;
+        }
+        else
+            break;
+    }
+    return str;
+}
+double NumberCell::to_numeric() { return data; }
 
 /*------------------
       DateCell
@@ -41,17 +68,17 @@ string DateCell::stringify()
     return string(buf);
 }
 
-int DateCell::to_numeric()
+double DateCell::to_numeric()
 {
-    return static_cast<int>(data);
+    return 0;
 }
 
 DateCell::DateCell(string s, int x, int y, Table *t) : Cell(x, y, t)
 {
     // Date format : yyyy-mm-dd (Ex. 2021-01-01)
-    int year = atoi(s.c_str());
-    int month = atoi(s.c_str() + 5);
-    int day = atoi(s.c_str() + 8);
+    int year = stoi(s);
+    int month = stoi(s.substr(5));
+    int day = stoi(s.substr(8));
 
     tm timeinfo;
 
@@ -79,13 +106,28 @@ string ExprCell::get_data()
 
 string ExprCell::stringify()
 {
-    return to_string(to_numeric());
+    string str = to_string(to_numeric());
+    for ( int i = str.length()-1 ; i > 0 ; i-- )
+    {
+        if ( str[i] == '0' )
+        {
+            str.pop_back();
+        }
+        else if  ( str[i] == '.' )
+        {
+            str.pop_back();
+            break;
+        }
+        else
+            break;
+    }
+    return str;
 }
 
-int ExprCell::to_numeric()
+double ExprCell::to_numeric()
 {
     double result = 0;
-    stack<int> st;
+    stack<double> st;
 
     for (int i = 0; i < exp_vec.size(); i++)
     {
@@ -96,10 +138,10 @@ int ExprCell::to_numeric()
         {
             st.push(table->to_numeric(s));
         }
-        // if Number ( 0 ~ 9 )
+        // if Number
         else if (isdigit(s[0]))
         {
-            st.push(atoi(s.c_str()));
+            st.push(stod(s));
         }
         else
         {
@@ -161,12 +203,19 @@ void ExprCell::parse_expression()
     {
         if (isalpha(data_exp[i]))
         {
-            exp_vec.push_back(data_exp.substr(i, 2));
-            i++;
+            int count = 0;
+            while(isalnum(data_exp[i+count]) || data_exp[i+count] == '.')
+                count++;
+            exp_vec.push_back(data_exp.substr(i, count));
+            i += count-1;
         }
         else if (isdigit(data_exp[i]))
         {
-            exp_vec.push_back(data_exp.substr(i, 1));
+            int count = 0;
+            while(isdigit(data_exp[i+count]) || data_exp[i+count] == '.')
+                count++;
+            exp_vec.push_back(data_exp.substr(i, count));
+            i += count-1;
         }
         else if (data_exp[i] == '(' || data_exp[i] == '[' || data_exp[i] == '{')
         { // Parenthesis
@@ -209,10 +258,25 @@ string FuncCell::get_data()
 
 string FuncCell::stringify()
 {
-    return to_string(to_numeric());
+    string str = to_string(to_numeric());
+    for ( int i = str.length()-1 ; i > 0 ; i-- )
+    {
+        if ( str[i] == '0' )
+        {
+            str.pop_back();
+        }
+        else if  ( str[i] == '.' )
+        {
+            str.pop_back();
+            break;
+        }
+        else
+            break;
+    }
+    return str;
 }
 
-int FuncCell::to_numeric()
+double FuncCell::to_numeric()
 {
     return value;
 }
@@ -235,19 +299,17 @@ void FuncCell::parse_function()
     // SUM, AVG, PRODUCT, MAX, MIN
     if (func_vec.back() == "SUM" || func_vec.back() == "AVG" || func_vec.back() == "PRODUCT" || func_vec.back() == "MAX" || func_vec.back() == "MIN")
     {
-        for (j = i + 1; j < data.length(); j++)
+        istringstream ss(data.substr(i+1, data.length()-i-2));
+        string start, end;
+        getline(ss, start, ':');
+        getline(ss, end);
+        for ( char p = start[0] ; p <= end[0] ; p++ )
         {
-            if (data[j] == ':')
+            for ( int q = stoi(start.substr(1)) ; q <= stoi(end.substr(1)) ; q++ )
             {
-                for (char p = data[i + 1]; p <= data[j + 1]; p++)
-                {
-                    for (int q = atoi(data.substr(i + 2, j - i - 2).c_str()); q <= atoi(data.substr(j + 2, data.length() - j - 1).c_str()); q++)
-                    {
-                        string s(1, p);
-                        s += to_string(q);
-                        func_vec.push_back(s);
-                    }
-                }
+                string cell_name(1,p);
+                cell_name += to_string(q);
+                func_vec.push_back(cell_name);
             }
         }
     }
@@ -273,6 +335,11 @@ void FuncCell::parse_function()
             }
         }
     }
+    // SIN, COS, TAN
+    else if ( func_vec.back() == "SIN" || func_vec.back() == "COS" || func_vec.back() == "TAN" )
+    {
+        func_vec.push_back(data.substr(i + 1, data.length() - i - 2));
+    }
 
     calculate();
 }
@@ -281,7 +348,7 @@ void FuncCell::calculate()
 {
     if (func_vec[0] == "SUM" || func_vec[0] == "AVG")
     {
-        value = 0;
+        value = 0.0;
         for (int i = 1; i < func_vec.size(); i++)
         {
             value += table->to_numeric(func_vec[i]);
@@ -305,7 +372,7 @@ void FuncCell::calculate()
         {
             for (int j = 0; j < MAX_COL_SIZE; j++)
             {
-                int f_value = atoi(func_vec[1].c_str()); // value to find
+                double f_value = stod(func_vec[1]); // value to find
                 // RTTI
                 if (!table->is_empty(i, j) && table->to_numeric(i, j) == f_value)
                 {
@@ -320,7 +387,7 @@ void FuncCell::calculate()
 
         for (int i = 2; i < func_vec.size(); i++)
         {
-            int temp = table->to_numeric(func_vec[i]);
+            double temp = table->to_numeric(func_vec[i]);
             if (func_vec[0] == "MAX")
                 value = (value < temp) ? temp : value;
             else if (func_vec[0] == "MIN")
@@ -334,16 +401,49 @@ void FuncCell::calculate()
             random_device rd;
             mt19937_64 gen(rd());
 
-            uniform_int_distribution<int> dis(0, 100);
+            uniform_real_distribution<double> dis(0.0, 100.0);
             if (func_vec[0] == "RANDBETWEEN")
             {
-                int start = atoi(func_vec[1].c_str());
-                int end = atoi(func_vec[2].c_str());
-                dis = uniform_int_distribution<int>(start, end);
+                double start = stod(func_vec[1]);
+                double end = stod(func_vec[2]);
+                dis = uniform_real_distribution<double>(start, end);
             }
 
             value = dis(gen);
             valid = true;
+        }
+    }
+    else if ( func_vec[0] == "SIN" )
+    {
+        if ( func_vec[1][0] >= 'A' && func_vec[1][0] <= 'Z' )
+        {
+            value = sin(table->to_numeric(func_vec[1]));
+        }
+        else
+        {
+            value = sin(stod(func_vec[1]));
+        }
+    }
+    else if ( func_vec[0] == "COS" )
+    {
+        if ( func_vec[1][0] >= 'A' && func_vec[1][0] <= 'Z' )
+        {
+            value = cos(table->to_numeric(func_vec[1]));
+        }
+        else
+        {
+            value = cos(stod(func_vec[1]));
+        }
+    }
+    else if ( func_vec[0] == "TAN" )
+    {
+        if ( func_vec[1][0] >= 'A' && func_vec[1][0] <= 'Z' )
+        {
+            value = tan(table->to_numeric(func_vec[1]));
+        }
+        else
+        {
+            value = tan(stod(func_vec[1]));
         }
     }
 }
