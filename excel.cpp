@@ -536,6 +536,14 @@ int Excel::parse_user_input(string s)
         history.push_back(v_to);
         return NORMAL;
     }
+    else if (command == "sort")
+    {
+        current_table->sort_cell(v_to, v_rest);
+        undo_history_Cell.clear();
+        undo_history_to.clear();
+        history.push_back(v_to);
+        return NORMAL;
+    }
 
     return ERROR;
 }

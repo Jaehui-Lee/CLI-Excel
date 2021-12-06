@@ -49,6 +49,167 @@ void Table::reg_cell(Cell *c, int row, int col)
     }
 }
 
+void Table::sort_cell(vector<string> where_vec, vector<string> how_vec)
+{
+    int num = where_vec.size();
+    int counting = 0;
+    int Expr_count = 0;
+    int Func_count = 0;
+    for (int i = 0; i < num; i++)
+    {
+        int col = where_vec[i][0] - 'A';
+        int row = atoi(where_vec[i].c_str() + 1) - 1;
+        if (!data_table[row][col].empty() && get_cell_type(row, col).name() != typeid(EmptyCell).name() && get_cell_type(row, col).name() != typeid(DateCell).name() && get_cell_type(row, col).name() != typeid(StringCell).name()) 
+        {
+            counting++;
+            if (get_cell_type(row, col).name() == typeid(ExprCell).name())
+            {
+                Expr_set.insert(data_table[row][col].back()->to_numeric());
+                Expr_count++;
+            }
+            if (get_cell_type(row, col).name() == typeid(FuncCell).name())
+            {
+                Func_set.insert(data_table[row][col].back()->to_numeric());
+                Func_count++;
+            }
+        }
+    }
+    
+    int sort_value[counting];
+    int sort_row[counting];
+    int sort_col[counting];
+    string func_data[Func_count];
+    string expr_data[Expr_count];
+    int func_value[Func_count];
+    int expr_value[Expr_count];
+    int func_row[Func_count];
+    int func_col[Func_count];
+    int expr_row[Expr_count];
+    int expr_col[Expr_count];
+    int Func_size = Func_set.size();
+    int Expr_size = Expr_set.size();
+    int func_set_int[Func_size];
+    int expr_set_int[Expr_size];
+    copy(Func_set.begin(), Func_set.end(), func_set_int);
+    copy(Expr_set.begin(), Expr_set.end(), expr_set_int);
+    
+    int k = 0;
+    for (int i = 0; i < num; i++)
+    {
+        int col = where_vec[i][0] - 'A';
+        int row = atoi(where_vec[i].c_str() + 1) - 1;
+        if (!data_table[row][col].empty() && get_cell_type(row, col).name() != typeid(EmptyCell).name() && get_cell_type(row, col).name() != typeid(DateCell).name() && get_cell_type(row, col).name() != typeid(StringCell).name()) 
+        {
+            sort_value[k] = data_table[row][col].back()->to_numeric();
+            sort_row[k] = row;
+            sort_col[k] = col; 
+            k++;
+        }
+    }
+    
+    k = 0;
+    for (int i = 0; i < Func_size; i++)
+    {
+        for (int j = 0; j < num; j++)
+        {
+            int col = where_vec[j][0] - 'A';
+            int row = atoi(where_vec[j].c_str() + 1) - 1;
+            if (!data_table[row][col].empty() && get_cell_type(row, col).name() == typeid(FuncCell).name() && func_set_int[i] == data_table[row][col].back()->to_numeric())
+            {
+                func_value[k] = data_table[row][col].back()->to_numeric();
+                func_data[k] =  dynamic_cast<FuncCell *>(data_table[row][col].back())->get_data();
+                k++;
+            }
+        }
+    }
+
+    k = 0;
+    for (int i = 0; i < Expr_size; i++)
+    {
+        for (int j = 0; j < num; j++)
+        {
+            int col = where_vec[j][0] - 'A';
+            int row = atoi(where_vec[j].c_str() + 1) - 1;
+            if (!data_table[row][col].empty() && get_cell_type(row, col).name() == typeid(ExprCell).name() && expr_set_int[i] == data_table[row][col].back()->to_numeric())
+            {
+                expr_value[k] = data_table[row][col].back()->to_numeric();
+                expr_data[k] =  dynamic_cast<ExprCell *>(data_table[row][col].back())->get_data();
+                k++;
+            }
+        }
+    }
+
+    if (!how_vec.empty() && how_vec[0] == "desc") 
+    {
+        sort(sort_value, sort_value+counting, greater<int>());
+        sort(func_value, func_value+Func_count, greater<int>());
+        sort(expr_value, expr_value+Expr_count, greater<int>());
+        reverse(func_data, func_data + Func_count);
+        reverse(expr_data, expr_data + Expr_count);
+    }
+    else 
+    {
+        sort(sort_value, sort_value+counting);
+    }
+
+    k = 0;
+    for (int i = 0; i < Func_count; i++)
+    {
+        for (int j = k; j < counting; j++)
+        {
+            if (sort_value[j] == func_value[i])
+            {
+                func_row[i] = sort_row[j];
+                func_col[i] = sort_col[j];
+                k = j + 1;
+                break;
+            }
+        }
+    }
+
+    k = 0;
+    for (int i = 0; i < Expr_count; i++)
+    {
+        for (int j = k; j < counting; j++)
+        {
+            if (sort_value[j] == expr_value[i])
+            {
+                int expr = expr_value[i];
+                int inter_count = count(func_value, func_value+Func_count, expr);
+                expr_row[i] = sort_row[j + inter_count];
+                expr_col[i] = sort_col[j + inter_count];
+                k = j + 1;
+                break;
+            }
+        }
+    }
+
+    int j = 0;
+    k = 0;
+    for (int i = 0; i < counting; i++)
+    {
+        if (sort_row[i] == func_row[j] && sort_col[i] == func_col[j])
+        {
+            j++;
+            continue;
+        }
+        else if (sort_row[i] == expr_row[k] && sort_col[i] == expr_col[k])
+        {
+            k++;
+            continue;
+        }
+        reg_cell(new NumberCell(sort_value[i], sort_row[i], sort_col[i], this), sort_row[i], sort_col[i]);
+    }
+    for (int i = 0; i < Func_count; i++)
+    {
+        reg_cell(new FuncCell(func_data[i], func_row[i], func_col[i], this), func_row[i], func_col[i]);
+    }
+    for (int i = 0; i < Expr_count; i++)
+    {
+        reg_cell(new ExprCell(expr_data[i], expr_row[i], expr_col[i], this), expr_row[i], expr_col[i]);
+    }
+}
+
 double Table::to_numeric(const string &s)
 {
     // Cell name
