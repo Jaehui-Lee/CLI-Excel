@@ -502,6 +502,12 @@ Cell * Table::undo(const string &s)
     if ( !data_table[row][col].empty() ){
         Cell * temp = data_table[row][col].back();
         data_table[row][col].pop_back();
+        if ( typeid(*temp).name() == typeid(EmptyCell).name() )
+            number_of_cell++;
+        else if ( data_table[row][col].empty() )
+            number_of_cell--;
+        else if ( get_cell_type(row, col).name() == typeid(EmptyCell).name() )
+            number_of_cell--;
         return temp;
     }
     else{

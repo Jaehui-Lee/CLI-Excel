@@ -704,6 +704,7 @@ void Excel::undo()
     undo_history_Cell.push_back(h_cell);
     print_table();
 }
+
 void Excel::redo()
 {   
     if(undo_history_Cell.empty())
@@ -720,8 +721,8 @@ void Excel::redo()
     {
         int col = h_to[i][0] - 'A';
         int row = stoi(h_to[i].substr(1)) - 1;
-        current_table->reg_cell(h_cell[i], row, col);
-
+        if ( h_cell[i] )
+            current_table->reg_cell(h_cell[i], row, col);
     }
 
     print_table();
