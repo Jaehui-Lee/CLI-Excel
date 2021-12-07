@@ -140,6 +140,9 @@ $ ./main
             - Delete the data of the existing cell
             - Considering the Undo function and the table structure, create and assign EmptyCells that contain no data, and implement EmptyCells so that they are not allocated consecutively
             - Ex : Remove A1
+        - Sort (2021/12/07)
+            - You can sort in ascending or descending order by entering the range of cells you want to sort
+            - Ex : Sort A1:A4 desc
     - ExcelList
         - Sheet (2021/11/11)
             - You can create, move, and delete sheets with the next, prev, and delete commands
