@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cell.h"
-
+#include <set>
 #include "ncurses.h"
 #include <iostream>
 #include <string>
@@ -44,7 +44,9 @@ public:
 
     // Register a new cell ( including removing )
     void reg_cell(Cell *c, int row, int col);
-
+    void sort_cell(vector<string> where_vec, vector<string> how_vec);
+    set<int> Expr_set;
+    set<int> Func_set;
     // Returns the integer value of the cell
     // s : cell name (such as A3, B6)
     double to_numeric(const string &s);
