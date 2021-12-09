@@ -143,6 +143,8 @@ $ ./main
         - Sort (2021/12/07)
             - You can sort in ascending or descending order by entering the range of cells you want to sort
             - Ex : Sort A1:A4 desc
+        - Get (2021/12/10)
+            - Ex : Get A1:A5
     - ExcelList
         - Sheet (2021/11/11)
             - You can create, move, and delete sheets with the next, prev, and delete commands
