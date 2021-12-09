@@ -210,6 +210,21 @@ void Table::sort_cell(vector<string> where_vec, vector<string> how_vec)
     }
 }
 
+string Table::get_data(const string& s)
+{
+    int col = s[0] - 'A';
+    int row = stoi(s.substr(1))-1;
+
+    if (get_cell_type(row, col).name() == typeid(ExprCell).name())
+    {
+        return dynamic_cast<ExprCell *>(data_table[row][col].back())->get_data();
+    }
+    else if (get_cell_type(row, col).name() == typeid(FuncCell).name())
+    {
+        return dynamic_cast<FuncCell *>(data_table[row][col].back())->get_data();
+    }
+}
+
 double Table::to_numeric(const string &s)
 {
     // Cell name
@@ -445,13 +460,29 @@ string Table::col_num_to_str(int n)
 
 bool Table::is_empty(int row, int col)
 {
-    if (!data_table[row][col].empty())
+    if (data_table[row][col].empty() || get_cell_type(row, col).name() == typeid(EmptyCell).name())
+        return true;
+    return false;
+}
+
+bool Table::is_empty(const string& s)
+{
+    int col = s[0] - 'A';
+    int row = stoi(s.substr(1))-1;
+    if (data_table[row][col].empty() || get_cell_type(row, col).name() == typeid(EmptyCell).name())
         return true;
     return false;
 }
 
 const type_info &Table::get_cell_type(int row, int col)
 {
+    return typeid(*(data_table[row][col].back()));
+}
+
+const type_info &Table::get_cell_type(const string& s)
+{
+    int col = s[0] - 'A';
+    int row = stoi(s.substr(1))-1;
     return typeid(*(data_table[row][col].back()));
 }
 

@@ -263,6 +263,8 @@ int Excel::parse_user_input(string s)
     int row_size, col_size;
     getmaxyx(win, row_size, col_size);
 
+    int col, row;
+
     if ( s == to_string(KEY_UP) )
     {
         if ( start_row > 0 )
@@ -409,7 +411,7 @@ int Excel::parse_user_input(string s)
         // "to" must be number
         if ( !is_number(to) )
             return ERROR;
-        print_table(to);
+        print_table(vector<string>(), to);
         return FIND;
     }
     else if (command == "goto") // go to another excel
@@ -421,12 +423,17 @@ int Excel::parse_user_input(string s)
         excelList->move_to_window(to);
         return GOTO;
     }
+    else if (command == "get")
+    {
+        if ( !is_cell_name(v_to) )
+            return ERROR;
+        print_table(v_to, "");
+        return GET;
+    }
 
     // check cell name error
     if ( !is_cell_name(v_to) )
         return ERROR;
-
-    int col, row;
 
     if (command == "remove")
     {
@@ -548,13 +555,38 @@ int Excel::parse_user_input(string s)
     return ERROR;
 }
 
-void Excel::print_table(string look_for = "")
+void Excel::print_table(vector<string> get, string look_for = "")
 {
     int row, col;
     string str = to_string(excelList->get_current_page()) + "/" + to_string(excelList->get_excel_count());
     getmaxyx(win, row, col);
     wclear(win);
     current_table->print_table(start_row, start_col, look_for);
+    wmove(win, row-2, 0);
+    for ( int i = 0 ; i < get.size() ; i++ )
+    {
+        wattron(win, COLOR_PAIR(1));
+        wprintw(win, get[i].c_str());
+        wprintw(win, ":");
+        if ( current_table->is_empty(get[i]) )
+        {
+            wattroff(win, COLOR_PAIR(1));
+            wprintw(win, " ");
+            continue;
+        }
+        if ( current_table->get_cell_type(get[i]).name() == typeid(FuncCell).name() || current_table->get_cell_type(get[i]).name() == typeid(ExprCell).name() )
+        {
+            wprintw(win, current_table->get_data(get[i]).c_str());
+        }
+        else
+        {
+            wprintw(win, current_table->stringify(get[i]).c_str());
+        }
+        
+        wattroff(win, COLOR_PAIR(1));
+        if ( i != get.size()-1 )
+            wprintw(win, " ");
+    }
     mvwprintw(win, row - 1, col - 10, str.c_str());
     mvwprintw(win, row - 1, 0, ">> ");
     wrefresh(win);
@@ -610,7 +642,7 @@ int Excel::command_line()
 
     getmaxyx(win, row, col);
 
-    print_table(); // print table
+    print_table(vector<string>()); // print table
 
     string s;
 
@@ -625,6 +657,9 @@ int Excel::command_line()
         else if (ret == FIND) // if user's command is "find"
         {
         }
+        else if (ret == GET)
+        {
+        }
         else if (ret == ERROR)
         {
             string blank = string(col-10, ' ');
@@ -634,10 +669,10 @@ int Excel::command_line()
             wattroff(win, COLOR_PAIR(1));
             wrefresh(win);
             sleep(1);
-            print_table();
+            print_table(vector<string>());
         }
         else
-            print_table(); // if not, keep going
+            print_table(vector<string>()); // if not, keep going
 
         s = input_command();
     }
@@ -702,7 +737,7 @@ void Excel::undo()
     }
     undo_history_to.push_back(h_to);
     undo_history_Cell.push_back(h_cell);
-    print_table();
+    print_table(vector<string>());
 }
 
 void Excel::redo()
@@ -725,5 +760,5 @@ void Excel::redo()
             current_table->reg_cell(h_cell[i], row, col);
     }
 
-    print_table();
+    print_table(vector<string>());
 }

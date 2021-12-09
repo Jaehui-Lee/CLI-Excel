@@ -32,6 +32,7 @@ class Excel
         FIND = 5,
         GOTO = 6,
         SAVE = 7,
+        GET = 8,
     };
 
     Table *current_table;
@@ -62,7 +63,7 @@ public:
 
     int parse_user_input(string s);
     int command_line();
-    void print_table(string look_for);
+    void print_table(vector<string> get, string look_for);
 
     void to_txt(ofstream& writeFile, int current_excel);
     void from_txt(ifstream& readFile);

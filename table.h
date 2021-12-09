@@ -47,6 +47,10 @@ public:
     void sort_cell(vector<string> where_vec, vector<string> how_vec);
     set<int> Expr_set;
     set<int> Func_set;
+
+    // Get data of FuncCell or ExpreCell
+    string get_data(const string& s);
+
     // Returns the integer value of the cell
     // s : cell name (such as A3, B6)
     double to_numeric(const string &s);
@@ -64,8 +68,10 @@ public:
     string col_num_to_str(int n);
 
     bool is_empty(int row, int col);
+    bool is_empty(const string& s);
 
     const type_info& get_cell_type(int row, int col);
+    const type_info& get_cell_type(const string& s);
 
     void print_table(int start_row, int start_col, string look_for);
     void make_table();
