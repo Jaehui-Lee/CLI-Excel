@@ -223,6 +223,7 @@ string Table::get_data(const string& s)
     {
         return dynamic_cast<FuncCell *>(data_table[row][col].back())->get_data();
     }
+    return "";
 }
 
 double Table::to_numeric(const string &s)
