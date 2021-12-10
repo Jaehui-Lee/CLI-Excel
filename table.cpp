@@ -102,7 +102,7 @@ void Table::sort_cell(vector<string> where_vec, vector<string> how_vec)
         {
             sort_value[k] = data_table[row][col].back()->to_numeric();
             sort_row[k] = row;
-            sort_col[k] = col; 
+            sort_col[k] = col;
             k++;
         }
     }
@@ -357,19 +357,45 @@ void Table::make_table()
     {
         for (int j = 0; j < max_row_size; j++)
         {
-            if (!data_table[j][i].empty())
+            if (!is_empty(j, i))
             {
                 if (get_cell_type(j, i).name() == typeid(ExprCell).name())
                 {
                     dynamic_cast<ExprCell *>(data_table[j][i].back())->parse_expression();
                 }
-                else if (get_cell_type(j, i).name() == typeid(FuncCell).name())
+            }
+        }
+    }
+    
+    for (int i = 0; i < max_col_size; i++)
+    {
+        for (int j = 0; j < max_row_size; j++)
+        {
+            if (!is_empty(j, i))
+            {
+                if (get_cell_type(j, i).name() == typeid(FuncCell).name())
                 {
                     dynamic_cast<FuncCell *>(data_table[j][i].back())->parse_function();
                 }
             }
         }
     }
+
+    // COUNT() error...
+    for (int i = 0; i < max_col_size; i++)
+    {
+        for (int j = 0; j < max_row_size; j++)
+        {
+            if (!is_empty(j, i))
+            {
+                if (get_cell_type(j, i).name() == typeid(FuncCell).name())
+                {
+                    dynamic_cast<FuncCell *>(data_table[j][i].back())->parse_function();
+                }
+            }
+        }
+    }
+
 
     for (int i = 0; i < max_col_size; i++)
     {

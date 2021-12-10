@@ -146,7 +146,12 @@ bool Excel::is_expr(vector<string> v_str)
         vector<int> index_of_op{-1}; // index of operator(+,-,*,/)
         for ( int j = 0 ; j < v_str[i].length() ; j++ )
         {
-            if ( isupper(v_str[i][j]) || isdigit(v_str[i][j]) ) // all character of string must be upper character or digit or operator(+,-,*,/)
+            if ( v_str[i][j] == '(' || v_str[i][j] == ')' )
+            {
+                v_str[i].erase(j, 1);
+                j--;
+            }
+            else if ( isupper(v_str[i][j]) || isdigit(v_str[i][j]) ) // all character of string must be upper character or digit or operator(+,-,*,/)
                 continue;
             else if ( op.find(v_str[i][j]) != op.end() )
             {
@@ -211,7 +216,8 @@ bool Excel::is_func(vector<string> v_str)
                 {
                     string cell_name(1, p);
                     cell_name += to_string(q);
-                    v_to.push_back(cell_name);
+                    if ( !current_table->is_empty(cell_name) )
+                        v_to.push_back(cell_name);
                 }
             }
             if ( !is_cell_name(v_to) )
@@ -565,27 +571,23 @@ void Excel::print_table(vector<string> get, string look_for = "")
     wmove(win, row-2, 0);
     for ( int i = 0 ; i < get.size() ; i++ )
     {
-        wattron(win, COLOR_PAIR(1));
-        wprintw(win, get[i].c_str());
-        wprintw(win, ":");
-        if ( current_table->is_empty(get[i]) )
+        if ( !current_table->is_empty(get[i]) )
         {
+            wattron(win, COLOR_PAIR(1));
+            wprintw(win, get[i].c_str());
+            wprintw(win, ":");
+            if (current_table->get_cell_type(get[i]).name() == typeid(FuncCell).name() || current_table->get_cell_type(get[i]).name() == typeid(ExprCell).name())
+            {
+                wprintw(win, current_table->get_data(get[i]).c_str());
+            }
+            else
+            {
+                wprintw(win, current_table->stringify(get[i]).c_str());
+            }
             wattroff(win, COLOR_PAIR(1));
-            wprintw(win, " ");
-            continue;
+            if ( i != get.size()-1 )
+                wprintw(win, " ");
         }
-        if ( current_table->get_cell_type(get[i]).name() == typeid(FuncCell).name() || current_table->get_cell_type(get[i]).name() == typeid(ExprCell).name() )
-        {
-            wprintw(win, current_table->get_data(get[i]).c_str());
-        }
-        else
-        {
-            wprintw(win, current_table->stringify(get[i]).c_str());
-        }
-        
-        wattroff(win, COLOR_PAIR(1));
-        if ( i != get.size()-1 )
-            wprintw(win, " ");
     }
     mvwprintw(win, row - 1, col - 10, str.c_str());
     mvwprintw(win, row - 1, 0, ">> ");

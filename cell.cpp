@@ -90,6 +90,17 @@ DateCell::DateCell(string s, int x, int y, Table *t) : Cell(x, y, t)
     timeinfo.tm_sec = 0;
 
     data = mktime(&timeinfo);
+
+    /*
+        In window (WSL), below code is nessesary
+    */
+
+    char buf[50];
+
+    tm *temp;
+    temp = localtime(&data);
+
+    strftime(buf, 50, "%F", temp);
 }
 
 /*------------------
@@ -309,7 +320,8 @@ void FuncCell::parse_function()
             {
                 string cell_name(1,p);
                 cell_name += to_string(q);
-                func_vec.push_back(cell_name);
+                if ( !table->is_empty(cell_name) )
+                    func_vec.push_back(cell_name);
             }
         }
     }
@@ -354,11 +366,19 @@ void FuncCell::calculate()
             value += table->to_numeric(func_vec[i]);
         }
         if (func_vec[0] == "AVG")
-            value /= func_vec.size() - 1;
+        {
+            if ( func_vec.size() > 1 )
+                value /= func_vec.size() - 1;
+            else
+                value = 0.0;
+        }
     }
     else if (func_vec[0] == "PRODUCT")
     {
-        value = 1;
+        if ( func_vec.size() > 1 )
+            value = 1.0;
+        else
+            value = 0.0;
         for (int i = 1; i < func_vec.size(); i++)
         {
             value *= table->to_numeric(func_vec[i]);
