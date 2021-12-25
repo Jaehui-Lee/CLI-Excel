@@ -124,9 +124,9 @@ You can move to next, prev, n-th sheet, and also delete sheet.
 
 You can save the excel file you created as a txt file. Saved files can also be opened and written continuously. When creating a new Excel file for the first time, if you enter a file name, it is automatically saved every 30 seconds while working.
 
-> save
+> Save
 
-> save filename.txt
+> Save filename.txt
 
 <br />
 <br />
