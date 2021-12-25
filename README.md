@@ -133,12 +133,11 @@ You can save the excel file you created as a txt file. Saved files can also be o
 
 - Find
 
-
-> Find 50
-
 ![Group 204](https://user-images.githubusercontent.com/71120389/147382410-bb5c0c8b-efa7-4848-b232-d694df9cae72.jpg)
 
 If you enter the data you are looking for, the stored values are searched based on text and highlighted.
+
+> Find 50
 
 <br />
 <br />
