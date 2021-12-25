@@ -18,66 +18,136 @@
 
 ## How to use
 
+### Download and Run
 ```bash
+$ git clone https://github.com/Jaehui-Lee/CLI-Excel.git
 $ sudo apt-get install libncurses5-dev libncursesw5-dev
 $ make main
 $ ./main
 ```
 
-* In excution, you can use following command
-```bash
-# In InitialPage, you can choose 4 menus
+### If you run the program, you can choose from 4 menus
+- Create New Excel
 
- - Create New Excel
+- Open Excel
 
- - Open Excel
+- Manual
 
- - Manual
+- Exit
 
- - Exit
-```
-```bash
-# In Excel
+### Commands
 
-# set number
->> setn A1 10
+- Set Value
 
-# set string
->> sets A1 abc
+![Group 199](https://user-images.githubusercontent.com/71120389/147381977-5b15b022-cc68-4451-9955-799876c7e344.jpg)
 
-# set date
->> setd A1 2021-11-11
+You can set 5 types of values (numbers, strings, dates, formulas including arithmetic operations, and Excel functions), and you can set multiple values as well as single values.
 
-# set expression (Arithmetic operation)
->> sete A5 A1+A2*A3/A4
+> Setn A4:A13 10 20 30 40 50 60 70 80 90 100
 
-# set function (Excel Function)
->> setf A5 SUM(A1:A4)
+> Setd C1 2021-12-13
 
-# remove cell
->> remove A1
+> Sets F1 CLI-Excel
 
-# move to next sheet
->> next
+> Sete G12 (A4+A5+A6)/A7*A8
 
-# move to n-th sheet
->> goto 5
+> Setf D4 SUM(A4:A13)
 
-# move to prev sheet
->> prev
+<br />
+<br />
 
-# delete current sheet
->> delete
+- Remove Cell
 
-# save to txt
->> save filename.txt
+![Group 200](https://user-images.githubusercontent.com/71120389/147382083-e342aa5f-8dc8-4a39-b62e-0671c0844b0e.jpg)
 
-# find value
->> find 10
+You can remove the value of a specified cell, and you can remove multiple values as well as single values.
 
-# exit (return to initial page)
->> exit
-```
+> Remove A4
+
+<br />
+<br />
+
+- Get Cell Information
+
+![Group 201](https://user-images.githubusercontent.com/71120389/147382213-980dd095-9dfe-4e28-91e7-3e2325b3777f.jpg)
+
+you can get the actual command value stored in the cell, and you can get multiple values as well as single values.
+
+> Get D4:D9
+
+<br />
+<br />
+
+- Sheet
+
+![Group 202](https://user-images.githubusercontent.com/71120389/147382303-77317a08-703a-4fea-a471-71a2d158b94b.jpg)
+
+You can move to next, prev, n-th sheet, and also delete sheet.
+
+> Next
+
+> Prev
+
+> Delete
+
+> Goto 5
+
+<br />
+<br />
+
+- Save
+
+You can save the excel file you created as a txt file. Saved files can also be opened and written continuously. When creating a new Excel file for the first time, if you enter a file name, it is automatically saved every 30 seconds while working.
+
+> save
+
+> save filename.txt
+
+<br />
+<br />
+
+- Find
+
+
+> Find 50
+
+![Group 204](https://user-images.githubusercontent.com/71120389/147382410-bb5c0c8b-efa7-4848-b232-d694df9cae72.jpg)
+
+If you enter the data you are looking for, the stored values are searched based on text and highlighted.
+
+<br />
+<br />
+
+- Sort
+
+![Group 203](https://user-images.githubusercontent.com/71120389/147382377-b4159866-c27a-440c-9463-2bdcc87f9708.jpg)
+
+You can sort cells in a specified range in ascending or descending order. The type of data being sorted is limited to Number.
+
+> Sort A4:A13 desc
+
+<br />
+<br />
+
+- Undo / Redo
+
+![Group 205](https://user-images.githubusercontent.com/71120389/147382411-d60b56e4-5cb6-411a-bd91-3408b5591a56.jpg)
+
+If you want to undo what you've done, just press Ctrl+Z and Excel will go back to its previous state. However, if you want to go back to the state before the revert after reverting Excel, just press Ctrl+C.
+
+> Ctrl+Z
+
+> Ctrl+C
+
+<br />
+<br />
+
+- Table Moving
+
+You can move the Excel table by pressing the arrow keys.
+
+<br />
+<br />
 
 ## History
 - Base Source
