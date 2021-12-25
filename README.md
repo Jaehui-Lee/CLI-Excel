@@ -27,13 +27,38 @@ $ ./main
 ```
 
 ### If you run the program, you can choose from 4 menus
+
+<br />
+
+![Group 164](https://user-images.githubusercontent.com/71120389/147382539-7febd4f1-6da0-4cf3-9871-5f48e4b5b156.jpg)
+
+<br />
+
 - Create New Excel
+
+![image 48](https://user-images.githubusercontent.com/71120389/147382565-3b8cc438-6e0b-4655-9433-9de4a46c9c17.jpg)
+
+<br />
+<br />
 
 - Open Excel
 
+![Group 165](https://user-images.githubusercontent.com/71120389/147382574-db092c40-00f0-40b9-b43a-82d49404dd92.jpg)
+
+Through the file manager, you can open the previously saved Excel file and continue working.
+
+<br />
+<br />
+
 - Manual
 
+<br />
+<br />
+
 - Exit
+
+<br />
+<br />
 
 ### Commands
 
