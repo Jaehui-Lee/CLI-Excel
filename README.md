@@ -38,6 +38,8 @@ $ ./main
 
 ![image 48](https://user-images.githubusercontent.com/71120389/147382565-3b8cc438-6e0b-4655-9433-9de4a46c9c17.jpg)
 
+You can create Excel to perform a variety of tasks
+
 <br />
 <br />
 
@@ -45,17 +47,23 @@ $ ./main
 
 ![Group 165](https://user-images.githubusercontent.com/71120389/147382574-db092c40-00f0-40b9-b43a-82d49404dd92.jpg)
 
-Through the file manager, you can open the previously saved Excel file and continue working.
+Through the file manager, you can open the previously saved Excel file and continue working
 
 <br />
 <br />
 
 - Manual
 
+![image 68](https://user-images.githubusercontent.com/71120389/147397913-945e0faa-9486-42dd-ae58-e23ab650750b.jpg)
+
+Through the manual, you can get help on how to use it
+
 <br />
 <br />
 
 - Exit
+
+End the program
 
 <br />
 <br />
