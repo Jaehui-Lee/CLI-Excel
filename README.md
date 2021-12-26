@@ -229,6 +229,8 @@ You can move the Excel table by pressing the arrow keys.
             - Exit
     - FileManager (2021/12/03)
         - We got directory data using popen(), stat(), etc., and visualized the directory structure
+    - Manual (2021/12/26)
+        - It was implemented so that the txt file with the manual was read and printed on the screen, and the contents could be further checked with the arrow keys
     - Excel
         - Save (2021/11/19)
             - When input is received in the format of "SAVE filename" or "SAVE", the to_txt() function is called in the order of ExcelList→Excel→Table to save the data to the file
