@@ -1,0 +1,108 @@
+  ____ _     ___      _____              _
+ / ___| |   |_ _|    | ____|_  _____ ___| |
+| |   | |    | |_____|  _| \ \/ / __/ _ \ |
+| |___| |___ | |_____| |___ >  < (_|  __/ |
+ \____|_____|___|    |_____/_/\_\___\___|_|
+
+
+NAME
+       Excel program running in CLI environment
+
+DESCRIPTION
+       When you start the program, you can choose one of four menus
+
+       1. Create New Excel
+              You can create Excel to perform a variety of tasks
+
+       2. Open Excel
+              Through the file manager, you can open the previously saved Excel file and continue working
+
+       3. Manual
+              Through the manual, you can get help on how to use it
+
+       4. Exit
+              End the program
+
+
+COMMAND
+       1. Set Value
+              You can set 5 types of values (numbers, strings, dates, formulas including arithmetic operations, and Excel functions), 
+              and you can set multiple values as well as single values
+              
+              Numbers are expressed as real numbers
+               Ex. Setn A4:A13 10 20 30 40 50 60 70 80 90 100
+
+              The date is received in yyyy-mm-dd format
+               Ex. Setd C1 2021-12-13
+
+              Strings are received in free form.
+               Ex. Sets F1 CLI-Excel
+
+              An expression expressed as a arithmetic operation between a literal number and a cell name containing a value is used
+               Ex. Sete G12 (A4+A5+A6)/A7*A8
+
+              The functions SUM, AVG, PRODUCT, MIN, MAX, COUNT, RAND, RANDBETWEEN, SIN, COS, and TAN are used
+               Ex. Setf D4 SUM(A4:A13)
+               Ex. Setf D5 AVG(A4:A13)
+               Ex. Setf D6 PRODUCT(A4:A9)
+               Ex. Setf D7 MIN(A4:A13)
+               Ex. Setf D8 MAX(A4:A13)
+               Ex. Setf D9 COUNT(10)
+               Ex. Setf G4 RAND()
+               Ex. Setf G5 RANDBETWEEN(-100,0)
+               Ex. Setf G6 SIN(3.1415926)
+               Ex. Setf G7 COS(3.1415926)
+               Ex. Setf G8 TAN(3.1415926)
+
+
+       2. Remove Value
+              You can remove the value of a specified cell, and you can remove multiple values as well as single values
+               
+               Ex. Remove A4
+               Ex. Remove A4:A13
+               Ex. Remove A1:Z30
+             
+
+       3. Get Cell Information
+              you can get the actual command value stored in the cell, and you can get multiple values as well as single values
+               
+               Ex. Get D4
+               Ex. Get D4:D9
+
+       4. Sheet
+              You can move to next, prev, n-th sheet, and also delete sheet
+               
+               Ex. Next
+               Ex. Prev
+               Ex. Delete
+               Ex. Goto 5
+
+       5. Save
+              You can save the excel file you created as a txt file. Saved files can also be opened and written continuously
+              When creating a new Excel file for the first time, 
+              if you enter a file name, it is automatically saved every 30 seconds while working
+
+               Ex. Save
+               Ex. Save filename.txt
+
+       6. Find
+              If you enter the data you are looking for, the stored values are searched based on text and highlighted
+
+               Ex. Find 50
+
+       7. Sort
+              You can sort cells in a specified range in ascending or descending order.
+              The type of data being sorted is limited to Number
+
+               Ex. Sort A4:A13
+               Ex. Sort A4:A13 desc
+
+       8. Undo / Redo
+              If you want to undo what you've done, just press Ctrl+Z and Excel will go back to its previous state.
+              However, if you want to go back to the state before the revert after reverting Excel, just press Ctrl+C
+
+               Ex. Ctrl+Z
+               Ex. Ctrl+C
+
+       9. Table Moving
+              You can move the Excel table by pressing the arrow keys

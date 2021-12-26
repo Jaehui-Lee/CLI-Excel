@@ -57,6 +57,7 @@ string FileManager::init_screen()
     file_win = newwin(HEIGHT, WIDTH, starty, startx);
     keypad(file_win, TRUE);
     mvwprintw(win, 0, 0, "Use arrow keys to go up and down, Press enter to select a file");
+    mvwprintw(win, 1, 0, "To return to the initial screen, press 'q' or 'Q'");
     wrefresh(win);
     print_file(file_win, highlight, start_choice);
     while (1)

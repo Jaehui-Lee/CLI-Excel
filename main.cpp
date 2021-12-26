@@ -14,6 +14,7 @@
 
 #include "initialpage.h"
 #include "filemanager.h"
+#include "manual.h"
 #include "excellist.h"
 
 using namespace std;
@@ -54,6 +55,7 @@ int main()
     int row, col;
     getmaxyx(stdscr, row, col);
     WINDOW *fm_win = newwin(row, col, 0, 0);
+    WINDOW *mn_win = newwin(row, col, 0, 0);
 
     // current directory path
     FILE *fpipe;
@@ -68,6 +70,8 @@ int main()
 
     FileManager fm(fm_win, start_dir);
     string fm_choice;
+
+    Manual mn(mn_win);
 
     while ((ip_choice = ip.init_screen()) != -1) // if user's choice is 'Exit', go out
     {
@@ -118,14 +122,6 @@ int main()
                         break;
                 }
             }
-            // else
-            // {
-            //     wattron(stdscr, COLOR_PAIR(1));
-            //     mvwprintw(stdscr, row - 1, 0, "File doesn't exits");
-            //     wattroff(stdscr, COLOR_PAIR(1));
-            //     wrefresh(stdscr);
-            //     sleep(2);
-            // }
             delete excelList;
             excelList = nullptr;
             signal(SIGTSTP, SIG_IGN);
@@ -134,6 +130,7 @@ int main()
         }
         else if (ip_choice == 3) // Manual
         {
+            mn.init_screen();
         }
         else // Exit
         {
