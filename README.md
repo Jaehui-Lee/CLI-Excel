@@ -268,6 +268,3 @@ You can move the Excel table by pressing the arrow keys.
     - Error Handling
         - Add Error checking about (string, number, date) cell name, value(number, date), ... in command (2021/11/30)
         - Add Error checking about formula of expression cell, function cell (2021/12/01)
-
-## Reference
-- Meeting minutes : https://sunset-athlete-d53.notion.site/2021-2-839c0b4ec9c84092aa4fd4ac420f47d7
