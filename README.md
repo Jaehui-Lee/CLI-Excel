@@ -16,13 +16,26 @@
 * Operator
 > 전주형 오수현
 
+## Architecture
+![Group 208](https://user-images.githubusercontent.com/71120389/169697061-7bdfc8e0-f1ee-43c4-89c0-26bc8ee50c94.svg)
+
+<br />
+
+![Group 210](https://user-images.githubusercontent.com/71120389/169697094-f275c691-7be1-4927-b5b5-361ea90abff6.svg)
+
+<br />
+
 ## How to use
 
 ### Download and Run
 ```bash
 $ git clone https://github.com/Jaehui-Lee/CLI-Excel.git
+# ubuntu
 $ sudo apt-get install libncurses5-dev libncursesw5-dev
-$ make main
+# centos
+$ sudo yum -y install ncurses-devel
+$ make all
+$ make clean
 $ ./main
 ```
 
